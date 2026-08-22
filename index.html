@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do Elétron à Luz — LED &amp; LED RGB</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- PROGRESS NAV -->
+<nav class="actnav" id="actnav" aria-label="Progresso da experiência">
+  <div class="actnav-track">
+    <button class="actnav-item" data-target="#ato1"><span class="actnav-num">01</span><span class="actnav-label">A Luz</span></button>
+    <button class="actnav-item" data-target="#ato2"><span class="actnav-num">02</span><span class="actnav-label">O Semicondutor</span></button>
+    <button class="actnav-item" data-target="#ato3"><span class="actnav-num">03</span><span class="actnav-label">A Física da Luz</span></button>
+    <button class="actnav-item" data-target="#ato4"><span class="actnav-num">04</span><span class="actnav-label">RGB</span></button>
+    <button class="actnav-item" data-target="#ato5"><span class="actnav-num">05</span><span class="actnav-label">O Circuito</span></button>
+  </div>
+  <div class="actnav-fill" id="actnavFill"></div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="energy-lines"></div>
+    <div class="particles" id="heroParticles"></div>
+  </div>
+  <div class="hero-content">
+    <p class="eyebrow">LED &amp; LED RGB — uma jornada do elétron à cor</p>
+    <div class="hero-led-wrap">
+      <div class="hero-led" id="heroLed">
+        <div class="hero-led-core"></div>
+        <div class="hero-led-glow"></div>
+      </div>
+      <div class="hero-flow">
+        <span class="flow-word" data-step="0">ENERGIA</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-word" data-step="1">ELETRICIDADE</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-word" data-step="2">LUZ</span>
+      </div>
+    </div>
+    <h1>LED: muito mais que uma luz</h1>
+    <p class="hero-question">Como uma corrente elétrica consegue virar luz e, além disso, produzir praticamente qualquer cor?</p>
+    <button class="btn btn-primary" id="exploreBtn">EXPLORAR</button>
+  </div>
+  <div class="scroll-cue" aria-hidden="true"><span></span></div>
+</header>
+
+<main>
+
+<!-- =================== ATO 1 =================== -->
+<section class="act" id="ato1" data-act="1">
+  <div class="act-marker"><span class="act-marker-num">ATO 01</span><span class="act-marker-name">O que é a luz?</span></div>
+
+  <section class="block reveal">
+    <h2 class="block-title">O que é um LED?</h2>
+    <div class="led-def-grid">
+      <div class="led-def-card reveal">
+        <p class="led-acronym">LED</p>
+        <p class="led-full">Light Emitting Diode<br><em>Diodo Emissor de Luz</em></p>
+      </div>
+      <div class="led-def-card reveal">
+        <p class="def-label">O que ele faz?</p>
+        <p>Converte energia elétrica diretamente em luz visível, utilizando o fenômeno da</p>
+        <p class="highlight-term">ELETROLUMINESCÊNCIA</p>
+      </div>
+      <div class="led-def-card reveal">
+        <p class="def-label">Por que ele é eficiente?</p>
+        <p>Compare os dois caminhos da energia abaixo.</p>
+      </div>
+    </div>
+
+    <div class="compare-energy reveal">
+      <div class="compare-col">
+        <h3>Lâmpada incandescente</h3>
+        <div class="energy-path">
+          <div class="energy-node">ENERGIA</div>
+          <div class="energy-down">↓</div>
+          <div class="energy-node energy-loss">CALOR <span class="tag-bad">perdido</span></div>
+          <div class="energy-down">↓</div>
+          <div class="energy-node energy-small">LUZ</div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <h3>LED</h3>
+        <div class="energy-path">
+          <div class="energy-node">ENERGIA</div>
+          <div class="energy-down">↓</div>
+          <div class="energy-node energy-full">LUZ <span class="tag-good">quase toda a energia</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Você provavelmente vê LEDs todos os dias.</h2>
+    <p class="block-sub">Toque em cada item para descobrir por que o LED é usado ali.</p>
+    <div class="everyday-map" id="everydayMap">
+      <button class="everyday-item" data-info="Os pixels do celular usam microscópicos LEDs (ou OLEDs) RGB para formar cada cor da tela, com altíssima densidade e baixo consumo de energia.">📱<span>Celular</span></button>
+      <button class="everyday-item" data-info="TVs modernas usam LEDs como fonte de retroiluminação (LED TV) ou, em telas OLED, cada pixel é o próprio LED, gerando maior contraste e cores mais vivas.">📺<span>Televisão</span></button>
+      <button class="everyday-item" data-info="Monitores usam matrizes de LEDs RGB para reproduzir milhões de cores pixel a pixel, com resposta quase instantânea.">🖥️<span>Monitor</span></button>
+      <button class="everyday-item" data-info="Lâmpadas de LED substituíram incandescentes e fluorescentes por consumirem muito menos energia e durarem dezenas de milhares de horas.">💡<span>Iluminação</span></button>
+      <button class="everyday-item" data-info="Painéis de LED formam grandes telas públicas combinando milhares de pequenos LEDs RGB, visíveis a longas distâncias.">📢<span>Painéis</span></button>
+      <button class="everyday-item" data-info="Fitas e luzes decorativas usam LEDs RGB controláveis para criar efeitos coloridos com baixo custo energético.">✨<span>Decoração</span></button>
+    </div>
+    <div class="everyday-detail" id="everydayDetail" aria-live="polite"></div>
+  </section>
+</section>
+
+<!-- =================== ATO 2 =================== -->
+<section class="act" id="ato2" data-act="2">
+  <div class="act-marker"><span class="act-marker-num">ATO 02</span><span class="act-marker-name">O que existe dentro dele?</span></div>
+  <p class="act-transition reveal">A câmera entra no LED. É hora de olhar o material que faz tudo funcionar.</p>
+
+  <section class="block reveal">
+    <h2 class="block-title">O material que faz o LED funcionar</h2>
+    <p class="block-sub">Deslize o dedo (ou o mouse) pela régua para entender cada material.</p>
+
+    <div class="conductivity-ruler" id="ruler">
+      <div class="ruler-track">
+        <div class="ruler-zone" data-zone="conductor" style="left:0%;width:33.3%">CONDUTOR</div>
+        <div class="ruler-zone" data-zone="semicondutor" style="left:33.3%;width:33.4%">SEMICONDUTOR</div>
+        <div class="ruler-zone" data-zone="isolante" style="left:66.7%;width:33.3%">ISOLANTE</div>
+      </div>
+      <div class="ruler-info" id="rulerInfo">Passe o mouse ou toque em uma zona.</div>
+    </div>
+
+    <p class="pull-quote reveal">Mas como controlamos um semicondutor?</p>
+    <p class="answer-reveal reveal">DOPAGEM</p>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Dopagem</h2>
+    <div class="doping-grid">
+      <div class="doping-card reveal" id="dopingN">
+        <h3>Tipo N</h3>
+        <p>Excesso de elétrons. Portadores de carga <strong>negativa</strong>.</p>
+        <div class="lattice" id="latticeN"></div>
+      </div>
+      <div class="doping-card reveal" id="dopingP">
+        <h3>Tipo P</h3>
+        <p>Ausência de elétrons — formação de lacunas. Portadores de carga <strong>positiva</strong>.</p>
+        <div class="lattice" id="latticeP"></div>
+      </div>
+    </div>
+    <button class="btn btn-secondary reveal" id="approachBtn">APROXIMAR OS MATERIAIS</button>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Junção PN</h2>
+    <div class="pnjunction" id="pnJunction">
+      <div class="pn-side pn-n">N<div class="pn-electrons"></div></div>
+      <div class="pn-mid"></div>
+      <div class="pn-side pn-p">P<div class="pn-holes"></div></div>
+    </div>
+    <p class="pull-quote reveal">A estrutura fundamental do diodo — inclusive do LED.</p>
+    <p class="pull-quote reveal">O que acontece quando aplicamos tensão no sentido correto?</p>
+    <button class="btn btn-primary reveal" id="discoverBtn">DESCOBRIR</button>
+  </section>
+</section>
+
+<!-- =================== ATO 3 =================== -->
+<section class="act" id="ato3" data-act="3">
+  <div class="act-marker"><span class="act-marker-num">ATO 03</span><span class="act-marker-name">Como eletricidade vira luz?</span></div>
+
+  <section class="block reveal">
+    <h2 class="block-title">Como a eletricidade vira luz?</h2>
+    <div class="sequence-steps" id="sequenceSteps">
+      <div class="seq-step reveal">1. Tensão elétrica é aplicada</div>
+      <div class="seq-step reveal">2. Elétrons do tipo N avançam</div>
+      <div class="seq-step reveal">3. Lacunas do tipo P avançam</div>
+      <div class="seq-step reveal">4. Elétron encontra uma lacuna</div>
+      <div class="seq-step reveal">5. O elétron perde energia</div>
+      <div class="seq-step reveal">6. Essa energia é liberada como fóton</div>
+      <div class="seq-step seq-final reveal">LUZ</div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Bandas de energia</h2>
+    <div class="bandgap-diagram">
+      <div class="band band-conduction">BANDA DE CONDUÇÃO<small>elétrons livres para transportar corrente</small></div>
+      <div class="band-gap-visual">BAND GAP<small>faixa de energia proibida entre as duas bandas</small></div>
+      <div class="band band-valence">BANDA DE VALÊNCIA<small>elétrons ligados aos átomos</small></div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Recombinação elétron–lacuna</h2>
+    <div class="recombination" id="recombination">
+      <div class="recomb-band recomb-top">BANDA DE CONDUÇÃO<div class="recomb-electron">e⁻</div></div>
+      <div class="recomb-photon">✨ FÓTON</div>
+      <div class="recomb-band recomb-bottom">BANDA DE VALÊNCIA<div class="recomb-hole">◯</div></div>
+    </div>
+    <div class="recomb-legend reveal">
+      <p><strong>Elétron</strong> → retorna para a banda de valência</p>
+      <p><strong>Lacuna</strong> → é preenchida</p>
+      <p><strong>Energia</strong> → é liberada</p>
+      <p><strong>Resultado</strong> → fóton</p>
+    </div>
+    <p class="highlight-term reveal">ELETROLUMINESCÊNCIA</p>
+    <p class="block-sub reveal">Produção de luz através da passagem de corrente elétrica em um material.</p>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">A física da cor</h2>
+    <p class="formula">E = h · f</p>
+    <div class="bandgap-slider-wrap">
+      <label for="bandgapSlider">Energia do band gap (ajuste e veja a cor do fóton mudar)</label>
+      <input type="range" id="bandgapSlider" min="0" max="100" value="50">
+      <div class="bandgap-preview">
+        <div class="bandgap-led" id="bandgapLed"></div>
+        <div class="bandgap-readout" id="bandgapReadout">Energia média · comprimento de onda intermediário</div>
+      </div>
+      <div class="scale-bar">
+        <span>VERMELHO</span>
+        <div class="scale-track"></div>
+        <span>AZUL</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Por que existem LEDs de várias cores?</h2>
+    <div class="materials-flow" id="materialsFlow">
+      <button class="material-btn" data-material="gaas">GaAs — Arseneto de Gálio</button>
+      <button class="material-btn" data-material="gap">GaP — Fosfeto de Gálio</button>
+      <button class="material-btn" data-material="gan">GaN — Nitreto de Gálio</button>
+    </div>
+    <div class="flowchart" id="materialFlowchart">
+      <div class="flow-node" data-n="1">Material semicondutor</div>
+      <div class="flow-node" data-n="2">band gap</div>
+      <div class="flow-node" data-n="3">energia do fóton</div>
+      <div class="flow-node" data-n="4">comprimento de onda</div>
+      <div class="flow-node" data-n="5">cor</div>
+    </div>
+  </section>
+</section>
+
+<!-- =================== ATO 4 =================== -->
+<section class="act" id="ato4" data-act="4">
+  <div class="act-marker"><span class="act-marker-num">ATO 04</span><span class="act-marker-name">RGB</span></div>
+
+  <section class="block reveal hero-mini">
+    <h2 class="block-title">RGB</h2>
+    <p class="pull-quote">Um LED RGB é realmente um único LED?</p>
+    <p class="answer-reveal">NÃO.</p>
+    <div class="rgb-open" id="rgbOpen">
+      <div class="rgb-chip"><span class="chip-r">🔴 RED</span><span class="chip-g">🟢 GREEN</span><span class="chip-b">🔵 BLUE</span></div>
+      <p class="block-sub">3 LEDs independentes dentro de um único componente.</p>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Como funciona internamente?</h2>
+    <p class="block-sub">Cada LED possui material semicondutor adequado à sua cor, controle elétrico próprio, e pode funcionar separadamente, simultaneamente ou em diferentes intensidades.</p>
+    <div class="rgb-tester">
+      <div class="rgb-tester-led" id="rgbTesterLed"></div>
+      <div class="rgb-tester-buttons">
+        <button class="btn-rgb btn-r" data-c="r">R</button>
+        <button class="btn-rgb btn-g" data-c="g">G</button>
+        <button class="btn-rgb btn-b" data-c="b">B</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Ânodo comum × cátodo comum</h2>
+    <div class="anode-cathode-grid">
+      <div class="ac-card reveal">
+        <h3>Ânodo comum</h3>
+        <p>Terminal positivo compartilhado. Cores acionadas individualmente. Controle por nível negativo.</p>
+        <div class="ac-visual">+ → 🔴 🟢 🔵</div>
+      </div>
+      <div class="ac-card reveal">
+        <h3>Cátodo comum</h3>
+        <p>Terminal negativo compartilhado. Cores acionadas individualmente. Controle por nível positivo.</p>
+        <div class="ac-visual">🔴 🟢 🔵 → −</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">RGB não é uma escolha aleatória.</h2>
+    <div class="eye-flow">
+      <div class="eye-icon">👁️</div>
+      <div class="flow-chain">
+        <span>Retina</span>→<span>Três tipos de cones</span>→<span class="cone-r">🔴 vermelho</span><span class="cone-g">🟢 verde</span><span class="cone-b">🔵 azul</span>→<span>Combinação dos estímulos</span>→<strong>PERCEPÇÃO DAS CORES</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Síntese aditiva</h2>
+    <p class="block-sub">Ajuste os três sliders e veja a cor resultante em tempo real.</p>
+    <div class="additive-lab">
+      <div class="additive-circles" id="additiveCircles">
+        <div class="add-circle circle-r"></div>
+        <div class="add-circle circle-g"></div>
+        <div class="add-circle circle-b"></div>
+      </div>
+      <div class="additive-sliders">
+        <label>R <input type="range" id="sliderR" min="0" max="255" value="255"></label>
+        <label>G <input type="range" id="sliderG" min="0" max="255" value="80"></label>
+        <label>B <input type="range" id="sliderB" min="0" max="255" value="80"></label>
+      </div>
+      <div class="additive-result" id="additiveResult">LUZ + LUZ + LUZ</div>
+    </div>
+    <div class="additive-facts reveal">
+      <p>Vermelho + Verde → <strong>Amarelo</strong></p>
+      <p>Vermelho + Azul → <strong>Magenta</strong></p>
+      <p>Verde + Azul → <strong>Ciano</strong></p>
+      <p>Vermelho + Verde + Azul → <strong>Branco</strong></p>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Síntese aditiva × subtrativa</h2>
+    <div class="synthesis-compare">
+      <div class="synth-col">
+        <h3>Síntese aditiva — Luz</h3>
+        <p>Preto → adicionamos luz → cores → branco</p>
+        <p class="block-sub">Exemplos: LEDs, telas, monitores, TVs.</p>
+      </div>
+      <div class="synth-col">
+        <h3>Síntese subtrativa — Pigmento</h3>
+        <p>Branco → absorção de luz → cores</p>
+        <p class="block-sub">Exemplos: tintas, impressoras, CMYK.</p>
+      </div>
+    </div>
+    <p class="pull-quote reveal">RGB × CMYK</p>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">PWM — Controlando a intensidade</h2>
+    <p class="block-sub">Maior duty cycle → LED fica mais tempo ligado → maior intensidade percebida.</p>
+    <div class="pwm-lab">
+      <div class="pwm-led" id="pwmLed"></div>
+      <label for="pwmSlider">Duty cycle</label>
+      <input type="range" id="pwmSlider" min="0" max="100" value="50">
+      <div class="pwm-readout" id="pwmReadout">50%</div>
+      <div class="pwm-wave" id="pwmWave"></div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">O olho humano e o PWM</h2>
+    <p class="block-sub">O olho não percebe o piscar individual — ele interpreta a média da luz emitida.</p>
+    <div class="blink-lab">
+      <div class="blink-led" id="blinkLed"></div>
+      <button class="btn btn-secondary" id="blinkSpeedBtn">AUMENTAR VELOCIDADE</button>
+      <div class="blink-readout" id="blinkReadout">Piscar lento e visível</div>
+    </div>
+  </section>
+</section>
+
+<!-- =================== ATO 5 =================== -->
+<section class="act" id="ato5" data-act="5">
+  <div class="act-marker"><span class="act-marker-num">ATO 05</span><span class="act-marker-name">Do conceito ao circuito</span></div>
+
+  <section class="block reveal">
+    <h2 class="block-title">Do conceito ao circuito</h2>
+    <div class="circuit-diagram" id="circuitDiagram">
+      <div class="circuit-source">FONTE</div>
+      <div class="circuit-branches">
+        <div class="circuit-branch"><span class="circuit-resistor">RESISTOR</span><span class="circuit-led led-r">🔴</span></div>
+        <div class="circuit-branch"><span class="circuit-resistor">RESISTOR</span><span class="circuit-led led-g">🟢</span></div>
+        <div class="circuit-branch"><span class="circuit-resistor">RESISTOR</span><span class="circuit-led led-b">🔵</span></div>
+      </div>
+    </div>
+    <p class="pull-quote reveal">Cada cor precisa de seu próprio resistor.</p>
+    <button class="btn btn-primary reveal" id="powerCircuitBtn">LIGAR CIRCUITO</button>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Tensão direta</h2>
+    <div class="voltage-meters">
+      <div class="vmeter"><span class="vmeter-label">🔴 Vermelho</span><span class="vmeter-value">≈ 1,8 – 2,2 V</span></div>
+      <div class="vmeter"><span class="vmeter-label">🟢 Verde</span><span class="vmeter-value">≈ 3,0 – 3,4 V</span></div>
+      <div class="vmeter"><span class="vmeter-label">🔵 Azul</span><span class="vmeter-value">≈ 3,0 – 3,4 V</span></div>
+    </div>
+    <div class="chain-line reveal">Band gap maior → maior energia necessária → maior tensão direta</div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Polaridade</h2>
+    <div class="polarity-lab">
+      <div class="polarity-diagram" id="polarityDiagram">
+        <span class="pol-plus">+</span> → Ânodo | LED | Cátodo → <span class="pol-minus">−</span>
+      </div>
+      <div class="polarity-result" id="polarityResult">✅ conduz corrente / ✅ acende</div>
+      <button class="btn btn-secondary" id="invertBtn">INVERTER POLARIDADE</button>
+    </div>
+    <p class="highlight-term reveal">LED POSSUI POLARIDADE.</p>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Por que usamos resistor?</h2>
+    <div class="resistor-compare">
+      <div class="rc-card rc-bad">
+        <h3>Sem resistor</h3>
+        <p>Fonte → LED</p>
+        <p>⚠️ Corrente excessiva<br>⚠️ Risco de dano</p>
+      </div>
+      <div class="rc-card rc-good">
+        <h3>Com resistor</h3>
+        <p>Fonte → Resistor → LED</p>
+        <p>✅ Corrente controlada<br>✅ Proteção do componente</p>
+      </div>
+    </div>
+    <p class="formula reveal">R = (V<sub>fonte</sub> − V<sub>LED</sub>) / I<sub>LED</sub></p>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Calculadora interativa de resistor</h2>
+    <div class="resistor-calc">
+      <label>V fonte (V) <input type="number" id="vFonte" value="5" step="0.1"></label>
+      <label>V LED (V) <input type="number" id="vLed" value="2.0" step="0.1"></label>
+      <label>I LED (mA) <input type="number" id="iLed" value="15" step="1"></label>
+      <div class="resistor-result">R = <span id="resistorResult">200</span> Ω</div>
+      <p class="block-sub">Corrente típica: 10–20 mA. Como cada cor possui uma tensão direta diferente, os valores de resistência também podem ser diferentes.</p>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">LED RGB no mundo real</h2>
+    <div class="everyday-map" id="realWorldMap">
+      <button class="everyday-item" data-info="Smartphones usam milhões de subpixels RGB para formar cada imagem na tela, com controle individual de intensidade.">📱<span>Smartphones</span></button>
+      <button class="everyday-item" data-info="Monitores usam matrizes RGB de altíssima densidade para reproduzir cores fiéis com resposta rápida.">🖥️<span>Monitores</span></button>
+      <button class="everyday-item" data-info="TVs modernas combinam LEDs RGB (ou OLED RGB) para produzir contraste alto e cores vibrantes.">📺<span>TVs</span></button>
+      <button class="everyday-item" data-info="Painéis publicitários usam milhares de LEDs RGB de alta potência, visíveis à distância mesmo sob luz solar.">📢<span>Painéis publicitários</span></button>
+      <button class="everyday-item" data-info="Iluminação decorativa usa LEDs RGB controláveis via PWM para criar efeitos e transições de cor.">💡<span>Iluminação decorativa</span></button>
+      <button class="everyday-item" data-info="Indicadores de equipamentos usam LEDs RGB para sinalizar estados diferentes (ligado, erro, aviso) com uma única peça.">⚙️<span>Indicadores</span></button>
+    </div>
+    <div class="everyday-detail" id="realWorldDetail" aria-live="polite"></div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Como uma tela produz milhões de cores?</h2>
+    <p class="block-sub">Aproxime a imagem para revelar os subpixels RGB.</p>
+    <div class="pixel-zoom-lab">
+      <canvas id="pixelCanvas" width="600" height="300" aria-label="Simulação de zoom em pixels RGB"></canvas>
+      <label for="zoomSlider">Zoom</label>
+      <input type="range" id="zoomSlider" min="0" max="100" value="0">
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">LED × tecnologias antigas</h2>
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Característica</th><th>LED</th><th>Incandescente</th><th>Fluorescente</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Eficiência energética</td><td class="good">Alta</td><td class="bad">Baixa</td><td>Intermediária</td></tr>
+          <tr><td>Calor perdido</td><td class="good">Menor</td><td class="bad">Maior</td><td>Intermediário</td></tr>
+          <tr><td>Vida útil</td><td class="good">Muito alta</td><td class="bad">Menor</td><td>Maior que incandescente</td></tr>
+          <tr><td>Tempo de resposta</td><td class="good">Instantâneo</td><td>Rápido</td><td>Maior</td></tr>
+          <tr><td>Resistência</td><td class="good">Alta</td><td class="bad">Menor</td><td>Menor</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">As quatro grandes vantagens</h2>
+    <div class="advantages-grid">
+      <div class="adv-card reveal"><span class="adv-icon">⚡</span><h3>Eficiência energética</h3><p>Mais energia convertida em luz.</p></div>
+      <div class="adv-card reveal"><span class="adv-icon">⏳</span><h3>Durabilidade</h3><p>Vida útil que pode chegar a dezenas de milhares de horas.</p></div>
+      <div class="adv-card reveal"><span class="adv-icon">⚡</span><h3>Resposta rápida</h3><p>Acendimento praticamente instantâneo.</p></div>
+      <div class="adv-card reveal"><span class="adv-icon">🛡️</span><h3>Resistência</h3><p>Sem filamentos frágeis ou gases sob pressão.</p></div>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">Do elétron à luz</h2>
+    <div class="summary-flow" id="summaryFlow">
+      <span>ENERGIA ELÉTRICA</span>
+      <span>TENSÃO NA JUNÇÃO PN</span>
+      <span>MOVIMENTO DE ELÉTRONS E LACUNAS</span>
+      <span>RECOMBINAÇÃO</span>
+      <span>PERDA DE ENERGIA</span>
+      <span>FÓTON</span>
+      <span>LUZ</span>
+      <span>COR</span>
+      <span>RGB</span>
+      <span>COMBINAÇÃO DE INTENSIDADES</span>
+      <span class="summary-final">CORES</span>
+    </div>
+  </section>
+
+  <section class="block reveal">
+    <h2 class="block-title">LED RGB — do semicondutor à tecnologia</h2>
+    <div class="layers-stack">
+      <div class="layer-card">
+        <h3>Física</h3>
+        <p>Bandas de energia · Band gap · Fótons · Eletroluminescência</p>
+      </div>
+      <div class="layer-card">
+        <h3>Eletrônica</h3>
+        <p>Junção PN · Polaridade · Resistores · PWM</p>
+      </div>
+      <div class="layer-card">
+        <h3>Óptica</h3>
+        <p>Comprimento de onda · Síntese aditiva · Percepção visual</p>
+      </div>
+      <div class="layer-card">
+        <h3>Tecnologia</h3>
+        <p>Telas · Iluminação · Painéis · Indicadores</p>
+      </div>
+    </div>
+    <div class="center-led-final" id="centerLedFinal">LED RGB</div>
+  </section>
+</section>
+
+<!-- =================== ENCERRAMENTO =================== -->
+<section class="act closing" id="closing">
+  <h2 class="closing-title">VOCÊ CONSEGUE EXPLICAR?</h2>
+  <div class="quiz-list" id="quizList">
+    <div class="quiz-item" data-a="Ele converte energia elétrica quase diretamente em luz, sem precisar aquecer um filamento — quase toda a energia vira fóton, em vez de calor.">
+      <p class="quiz-q">01 — Por que um LED é eficiente?</p>
+      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
+      <p class="quiz-a"></p>
+    </div>
+    <div class="quiz-item" data-a="É a região de contato entre um semicondutor tipo N (excesso de elétrons) e um tipo P (excesso de lacunas) — a estrutura fundamental do diodo e do LED.">
+      <p class="quiz-q">02 — O que é uma junção PN?</p>
+      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
+      <p class="quiz-a"></p>
+    </div>
+    <div class="quiz-item" data-a="Quando um elétron da banda de condução se recombina com uma lacuna na banda de valência, ele perde energia — essa energia é liberada na forma de um fóton.">
+      <p class="quiz-q">03 — De onde vem o fóton?</p>
+      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
+      <p class="quiz-a"></p>
+    </div>
+    <div class="quiz-item" data-a="Porque vermelho, verde e azul são as cores às quais os três tipos de cones do olho humano são sensíveis — combinando suas intensidades, o cérebro percebe praticamente qualquer cor.">
+      <p class="quiz-q">04 — Por que RGB consegue formar tantas cores?</p>
+      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
+      <p class="quiz-a"></p>
+    </div>
+    <div class="quiz-item" data-a="Porque cada cor tem um band gap diferente, o que gera uma tensão direta diferente — logo, o cálculo R = (Vfonte − VLED) / ILED muda para cada uma.">
+      <p class="quiz-q">05 — Por que cada cor pode precisar de um resistor diferente?</p>
+      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
+      <p class="quiz-a"></p>
+    </div>
+  </div>
+  <div class="closing-led-wrap">
+    <div class="closing-led" id="closingLed"></div>
+  </div>
+  <p class="closing-final">"DO ELÉTRON À LUZ."</p>
+  <p class="closing-tagline">Tudo começa com um elétron. O resultado pode ser qualquer cor.</p>
+</section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
