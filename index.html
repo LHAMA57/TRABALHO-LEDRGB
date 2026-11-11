@@ -3,558 +3,2860 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Do Elétron à Luz — LED &amp; LED RGB</title>
-<link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#090b16">
+<title>Radiação Infravermelha | Apresentação Interativa</title>
+
+<style>
+/* =========================================================
+   NÃO PRECISA MEXER — CONFIGURAÇÕES GERAIS E TEMA
+========================================================= */
+:root {
+    --bg: #090b16;
+    --bg2: #111526;
+    --panel: rgba(21, 27, 46, .78);
+    --panel-light: rgba(255,255,255,.055);
+    --orange: #ff873d;
+    --red: #ff4d55;
+    --magenta: #d94cae;
+    --cyan: #55d9e8;
+    --blue: #329dbd;
+    --white: #f5f5fa;
+    --muted: #a6adbf;
+    --border: rgba(255,255,255,.12);
+
+    --font: "Inter", "Segoe UI", Arial, sans-serif;
+    --space: 24px;
+    --radius: 20px;
+    --transition: .65s cubic-bezier(.2,.7,.2,1);
+
+    --slide-padding: clamp(24px, 5vw, 76px);
+}
+
+* { box-sizing: border-box; }
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font);
+    overflow: hidden;
+}
+
+button, input {
+    font: inherit;
+}
+
+button {
+    color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--cyan);
+    outline-offset: 4px;
+}
+
+::selection {
+    background: var(--orange);
+    color: #111;
+}
+
+/* =========================================================
+   FUNDO ANIMADO
+========================================================= */
+
+#universe {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.heat-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 15% 80%, rgba(255,65,40,.12), transparent 42%),
+        radial-gradient(ellipse at 85% 15%, rgba(190,50,140,.10), transparent 40%),
+        radial-gradient(ellipse at 55% 55%, rgba(35,130,170,.045), transparent 55%);
+}
+
+#cursor-glow {
+    position: fixed;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(circle, rgba(255,111,52,.10), transparent 70%);
+    transform: translate(-50%,-50%);
+}
+
+/* =========================================================
+   ESTRUTURA DA APRESENTAÇÃO
+========================================================= */
+
+#app {
+    position: relative;
+    z-index: 2;
+    height: 100dvh;
+    width: 100%;
+}
+
+#slides {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.slide {
+    position: absolute;
+    inset: 0;
+    padding: var(--slide-padding);
+    padding-bottom: 105px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(35px) scale(.985);
+    transition:
+        opacity var(--transition),
+        transform var(--transition),
+        visibility var(--transition);
+    pointer-events: none;
+}
+
+.slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+    z-index: 2;
+}
+
+.slide-inner {
+    width: 100%;
+    max-width: 1450px;
+    margin: auto;
+}
+
+.slide-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--orange);
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 22px;
+}
+
+.slide-tag::before {
+    content: "";
+    width: 26px;
+    height: 2px;
+    background: var(--orange);
+}
+
+h1, h2, h3, p {
+    margin-top: 0;
+}
+
+h1 {
+    font-size: clamp(48px, 7.5vw, 105px);
+    line-height: .99;
+    letter-spacing: -5px;
+    margin-bottom: 25px;
+}
+
+h2 {
+    font-size: clamp(32px, 4vw, 58px);
+    line-height: 1.08;
+    letter-spacing: -2px;
+    margin-bottom: 30px;
+}
+
+h3 {
+    font-size: 21px;
+}
+
+p {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.gradient-text {
+    background: linear-gradient(105deg, var(--orange), var(--red), var(--magenta));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.cyan-text {
+    color: var(--cyan);
+}
+
+.subtitle {
+    font-size: clamp(16px, 2vw, 23px);
+    max-width: 680px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+/* =========================================================
+   CARDS E LAYOUTS
+========================================================= */
+
+.split {
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: clamp(24px, 5vw, 75px);
+    align-items: center;
+}
+
+.card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: clamp(20px, 3vw, 34px);
+    backdrop-filter: blur(15px);
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform .25s ease, border-color .3s ease;
+}
+
+.card:hover {
+    border-color: rgba(255,135,61,.5);
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        300px circle at var(--mx, 50%) var(--my, 50%),
+        rgba(255,135,61,.13),
+        transparent 70%
+    );
+}
+
+.image-frame {
+    min-height: 280px;
+    height: 100%;
+    max-height: 480px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background:
+        radial-gradient(circle at 20% 80%, rgba(255,92,48,.35), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(217,76,174,.25), transparent 45%),
+        linear-gradient(135deg, #18233d, #10101e);
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+}
+
+.image-frame img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+}
+
+.image-placeholder {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+}
+
+.image-placeholder .symbol {
+    display: block;
+    font-size: 65px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 20px rgba(255,130,55,.55));
+}
+
+.image-placeholder small {
+    display: block;
+    margin-top: 10px;
+    opacity: .7;
+}
+
+.image-caption {
+    position: absolute;
+    z-index: 3;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 35px 18px 15px;
+    background: linear-gradient(transparent, rgba(0,0,0,.8));
+    font-size: 12px;
+    color: white;
+}
+
+.points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 16px;
+}
+
+.points li {
+    position: relative;
+    padding: 13px 15px 13px 39px;
+    border-radius: 12px;
+    color: #e4e6ef;
+    background: rgba(255,255,255,.035);
+    border: 1px solid transparent;
+    line-height: 1.5;
+    transition: .25s ease;
+    opacity: 0;
+    animation: bulletIn .55s forwards;
+    animation-delay: calc(var(--i) * .12s);
+}
+
+.points li::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 22px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 12px var(--orange);
+}
+
+.points li:hover {
+    transform: translateX(8px);
+    background: rgba(255,135,61,.10);
+    border-color: rgba(255,135,61,.3);
+}
+
+@keyframes bulletIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   CAPA E CONCLUSÃO
+========================================================= */
+
+.cover-content {
+    max-width: 1000px;
+}
+
+.cover-decoration {
+    position: absolute;
+    right: 7%;
+    top: 17%;
+    width: 310px;
+    height: 310px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,130,55,.2);
+    box-shadow:
+        0 0 70px rgba(255,75,55,.15),
+        inset 0 0 70px rgba(255,75,55,.1);
+    pointer-events: none;
+}
+
+.cover-decoration::before,
+.cover-decoration::after {
+    content: "";
+    position: absolute;
+    inset: 25px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,130,55,.25);
+    animation: pulse 5s infinite alternate;
+}
+
+.cover-decoration::after {
+    inset: 60px;
+    animation-delay: 1s;
+}
+
+@keyframes pulse {
+    from { transform: scale(.9); opacity: .4; }
+    to { transform: scale(1.1); opacity: 1; }
+}
+
+.cover-bottom {
+    margin-top: 45px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+}
+
+.conclusion-link {
+    text-align: left;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255,255,255,.035);
+    color: var(--white);
+    padding: 15px 18px;
+    transition: .25s;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.conclusion-link:hover {
+    background: rgba(255,135,61,.13);
+    border-color: var(--orange);
+    transform: translateX(7px);
+}
+
+.conclusion-link span {
+    color: var(--orange);
+    font-weight: 800;
+}
+
+/* =========================================================
+   MÓDULO: ESPECTRO ELETROMAGNÉTICO
+========================================================= */
+
+.spectrum {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.spectrum-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 5px;
+    min-height: 110px;
+}
+
+.spectrum-item {
+    border: 1px solid rgba(255,255,255,.15);
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 12px 3px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    transition: .3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+}
+
+.spectrum-item:hover,
+.spectrum-item.selected {
+    transform: translateY(-8px);
+    border-color: white;
+    box-shadow: 0 0 22px rgba(255,255,255,.2);
+}
+
+.spectrum-item.selected {
+    outline: 2px solid var(--cyan);
+}
+
+.spectrum-item .mini {
+    font-size: 23px;
+}
+
+.spectrum-info {
+    min-height: 105px;
+}
+
+.invisible-label {
+    display: inline-block;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    margin-top: 10px;
+}
+
+/* =========================================================
+   MÓDULO: TEMPERATURA E PARTÍCULAS
+========================================================= */
+
+.particle-box {
+    height: 240px;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #151c34, #321b2c);
+    border: 1px solid var(--border);
+}
+
+#particleCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.control {
+    margin-top: 22px;
+}
+
+.control label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.control output {
+    color: var(--cyan);
+    font-weight: 800;
+}
+
+input[type=range] {
+    width: 100%;
+    accent-color: var(--orange);
+    cursor: pointer;
+}
+
+.scientific-note {
+    padding: 17px 20px;
+    border-left: 3px solid var(--orange);
+    background: rgba(255,135,61,.08);
+    border-radius: 0 12px 12px 0;
+    margin-top: 20px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   MÓDULO: STEFAN-BOLTZMANN
+========================================================= */
+
+.formula {
+    text-align: center;
+    font-size: clamp(25px, 4vw, 40px);
+    padding: 22px;
+    color: var(--white);
+    background: rgba(255,135,61,.08);
+    border-radius: 14px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.result {
+    background: linear-gradient(120deg, rgba(255,105,45,.16), rgba(217,76,174,.12));
+    border: 1px solid rgba(255,135,61,.25);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.result strong {
+    display: block;
+    font-size: clamp(30px, 4vw, 45px);
+    color: var(--orange);
+    margin-top: 7px;
+}
+
+#stefanChart {
+    width: 100%;
+    height: 180px;
+    display: block;
+    margin-top: 12px;
+}
+
+.variables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 17px;
+}
+
+.variables div {
+    padding: 9px;
+    background: rgba(255,255,255,.035);
+    border-radius: 8px;
+}
+
+.variables b {
+    color: var(--cyan);
+}
+
+/* =========================================================
+   MÓDULO: PISCINA E MECANISMOS DE PERDA
+========================================================= */
+
+.pool-visual {
+    position: relative;
+    min-height: 300px;
+    background: linear-gradient(#151a31 0%, #202c43 55%, #101729 100%);
+    border-radius: 17px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.pool-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 42%;
+    background: linear-gradient(130deg, #243044, #111a2d);
+}
+
+.pool-water {
+    position: absolute;
+    bottom: 18%;
+    left: 12%;
+    width: 76%;
+    height: 25%;
+    background: linear-gradient(180deg, #51d5e1, #187eac 65%, #125071);
+    border-radius: 0 0 35px 35px;
+    border-top: 4px solid #8bf3ef;
+    overflow: hidden;
+}
+
+.pool-water::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0 14px,
+        rgba(255,255,255,.16) 15px 17px
+    );
+    animation: waterMove 4s linear infinite;
+}
+
+@keyframes waterMove {
+    to { transform: translateY(17px); }
+}
+
+.pool-label {
+    position: absolute;
+    bottom: 5%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #b5d9e8;
+}
+
+.pool-effect {
+    position: absolute;
+    top: 4%;
+    height: 65%;
+    width: 30%;
+    cursor: pointer;
+    z-index: 3;
+    transition: .3s;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.pool-effect:hover,
+.pool-effect.selected {
+    filter: drop-shadow(0 0 10px var(--orange));
+}
+
+.pool-effect.rad {
+    left: 10%;
+}
+
+.pool-effect.evap {
+    left: 35%;
+}
+
+.pool-effect.conv {
+    left: 60%;
+}
+
+.effect-symbol {
+    font-size: 35px;
+    animation: float 2s infinite alternate ease-in-out;
+}
+
+@keyframes float {
+    to { transform: translateY(-12px); }
+}
+
+.effect-line {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 800;
+    color: white;
+    white-space: nowrap;
+    text-shadow: 0 2px 8px #000;
+}
+
+.pool-description {
+    min-height: 90px;
+    margin-top: 15px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.055);
+    color: var(--muted);
+    line-height: 1.5;
+    font-size: 13px;
+}
+
+.important {
+    border: 1px solid rgba(255,135,61,.3);
+    background: rgba(255,135,61,.09);
+    padding: 18px;
+    border-radius: 13px;
+    font-size: 13px;
+    line-height: 1.65;
+    margin-top: 18px;
+}
+
+.important b {
+    color: var(--orange);
+}
+
+/* =========================================================
+   MÓDULO: COBERTURA
+========================================================= */
+
+.cover-sheet {
+    position: absolute;
+    z-index: 5;
+    left: 12%;
+    bottom: 43%;
+    width: 76%;
+    height: 16px;
+    border-radius: 7px;
+    background: repeating-linear-gradient(
+        90deg,
+        #64cbd7,
+        #64cbd7 14px,
+        #3d9cbd 14px,
+        #3d9cbd 28px
+    );
+    box-shadow: 0 0 15px rgba(85,217,232,.5);
+    opacity: 0;
+    transform: scaleX(.3);
+    transition: .5s;
+    transform-origin: center;
+}
+
+.pool-visual.covered .cover-sheet {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.cover-toggle {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    border: 1px solid var(--cyan);
+    background: rgba(85,217,232,.1);
+    padding: 13px 19px;
+    border-radius: 12px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    transition: .3s;
+}
+
+.cover-toggle:hover {
+    background: rgba(85,217,232,.2);
+}
+
+.switch {
+    width: 40px;
+    height: 22px;
+    border-radius: 20px;
+    background: #555;
+    position: relative;
+}
+
+.switch::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    left: 3px;
+    top: 3px;
+    transition: .3s;
+}
+
+.covered .switch {
+    background: var(--cyan);
+}
+
+.covered .switch::after {
+    left: 21px;
+}
+
+.loss-meter {
+    height: 12px;
+    background: rgba(255,255,255,.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.loss-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--orange), var(--red));
+    transition: width .7s;
+}
+
+.meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 9px;
+}
+
+/* =========================================================
+   FUNDAMENTAÇÃO CIENTÍFICA
+========================================================= */
+
+#sciencePanel {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    background: rgba(5,7,15,.97);
+    padding: clamp(20px, 5vw, 65px);
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: .4s;
+}
+
+#sciencePanel.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.science-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.timeline {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 17px;
+    margin-top: 80px;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--magenta), var(--cyan));
+}
+
+.timeline-card {
+    position: relative;
+    padding-top: 45px;
+}
+
+.timeline-card::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 20px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 15px var(--orange);
+}
+
+.timeline-button {
+    width: 100%;
+    text-align: left;
+    padding: 20px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.timeline-button:hover,
+.timeline-button.expanded {
+    border-color: var(--orange);
+    transform: translateY(-5px);
+}
+
+.timeline-button .year {
+    color: var(--orange);
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.timeline-details {
+    display: none;
+    margin-top: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 13px;
+}
+
+.timeline-button.expanded .timeline-details {
+    display: block;
+}
+
+/* =========================================================
+   NOTAS DO APRESENTADOR
+========================================================= */
+
+#notesPanel {
+    position: fixed;
+    z-index: 15;
+    bottom: 85px;
+    right: 25px;
+    width: min(420px, calc(100% - 40px));
+    max-height: 45vh;
+    overflow-y: auto;
+    padding: 22px;
+    background: rgba(12,16,29,.97);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    transform: translateY(15px);
+    opacity: 0;
+    visibility: hidden;
+    transition: .3s;
+}
+
+#notesPanel.visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+#notesPanel h3 {
+    color: var(--orange);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#notesText {
+    color: #d5d9e4;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* =========================================================
+   CONTROLES INFERIORES
+========================================================= */
+
+#controls {
+    position: fixed;
+    z-index: 10;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px clamp(15px, 4vw, 55px);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(transparent, rgba(7,9,18,.95) 25%);
+}
+
+.nav-btn {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.07);
+    border-radius: 50%;
+    width: 39px;
+    height: 39px;
+    cursor: pointer;
+    font-size: 17px;
+    transition: .2s;
+    flex-shrink: 0;
+}
+
+.nav-btn:hover {
+    background: var(--orange);
+    color: #111;
+}
+
+.progress-area {
+    flex: 1;
+    min-width: 30px;
+}
+
+.progress-track {
+    height: 3px;
+    background: rgba(255,255,255,.13);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--magenta));
+    transition: width .4s;
+}
+
+.counter {
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    min-width: 40px;
+}
+
+.timer {
+    color: var(--cyan);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    min-width: 115px;
+    text-align: center;
+}
+
+.timer small {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+}
+
+.timer.late {
+    color: var(--red);
+}
+
+.timer.early {
+    color: var(--cyan);
+}
+
+#menu {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(5,7,15,.94);
+    padding: clamp(20px, 5vw, 70px);
+    opacity: 0;
+    visibility: hidden;
+    transition: .3s;
+    overflow-y: auto;
+}
+
+#menu.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.menu-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.menu-item {
+    padding: 23px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: var(--panel);
+    cursor: pointer;
+    text-align: left;
+    transition: .25s;
+}
+
+.menu-item:hover {
+    border-color: var(--orange);
+    transform: translateY(-4px);
+}
+
+.menu-item small {
+    display: block;
+    color: var(--orange);
+    margin-bottom: 10px;
+}
+
+.utility-btn {
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.utility-btn:hover {
+    color: var(--white);
+    border-color: var(--orange);
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media(max-width: 850px) {
+    .split {
+        grid-template-columns: 1fr;
+        gap: 23px;
+    }
+
+    .slide {
+        justify-content: flex-start;
+        padding-top: 35px;
+        padding-bottom: 100px;
+    }
+
+    .image-frame {
+        min-height: 210px;
+        max-height: 280px;
+    }
+
+    .cover-decoration {
+        width: 170px;
+        height: 170px;
+        right: 3%;
+        top: 12%;
+        opacity: .5;
+    }
+
+    .timeline {
+        grid-template-columns: 1fr 1fr;
+        margin-top: 40px;
+    }
+
+    .timeline::before {
+        display: none;
+    }
+
+    .timer {
+        min-width: 75px;
+    }
+}
+
+@media(max-width: 520px) {
+    h1 { letter-spacing: -2px; }
+    h2 { letter-spacing: -1px; }
+
+    .spectrum-bar {
+        grid-template-columns: repeat(4,1fr);
+    }
+
+    .spectrum-item {
+        min-height: 70px;
+    }
+
+    .timeline {
+        grid-template-columns: 1fr;
+    }
+
+    #controls {
+        gap: 8px;
+        padding: 12px 10px;
+    }
+
+    .nav-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .utility-btn {
+        padding: 7px;
+    }
+
+    .counter {
+        min-width: 35px;
+    }
+
+    .variables {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style>
 </head>
+
 <body>
 
-<!-- PROGRESS NAV -->
-<nav class="actnav" id="actnav" aria-label="Progresso da experiência">
-  <div class="actnav-track">
-    <button class="actnav-item" data-target="#ato1"><span class="actnav-num">01</span><span class="actnav-label">A Luz</span></button>
-    <button class="actnav-item" data-target="#ato2"><span class="actnav-num">02</span><span class="actnav-label">O Semicondutor</span></button>
-    <button class="actnav-item" data-target="#ato3"><span class="actnav-num">03</span><span class="actnav-label">A Física da Luz</span></button>
-    <button class="actnav-item" data-target="#ato4"><span class="actnav-num">04</span><span class="actnav-label">RGB</span></button>
-    <button class="actnav-item" data-target="#ato5"><span class="actnav-num">05</span><span class="actnav-label">O Circuito</span></button>
-  </div>
-  <div class="actnav-fill" id="actnavFill"></div>
-</nav>
+<canvas id="universe" aria-hidden="true"></canvas>
+<div class="heat-glow"></div>
+<div id="cursor-glow"></div>
 
-<!-- HERO -->
-<header class="hero" id="hero">
-  <div class="hero-bg" aria-hidden="true">
-    <div class="energy-lines"></div>
-    <div class="particles" id="heroParticles"></div>
-  </div>
-  <div class="hero-content">
-    <p class="eyebrow">LED &amp; LED RGB — uma jornada do elétron à cor</p>
-    <div class="hero-led-wrap">
-      <div class="hero-led" id="heroLed">
-        <div class="hero-led-core"></div>
-        <div class="hero-led-glow"></div>
-      </div>
-      <div class="hero-flow">
-        <span class="flow-word" data-step="0">ENERGIA</span>
-        <span class="flow-arrow">→</span>
-        <span class="flow-word" data-step="1">ELETRICIDADE</span>
-        <span class="flow-arrow">→</span>
-        <span class="flow-word" data-step="2">LUZ</span>
-      </div>
-    </div>
-    <h1>LED: muito mais que uma luz</h1>
-    <p class="hero-question">Como uma corrente elétrica consegue virar luz e, além disso, produzir praticamente qualquer cor?</p>
-    <button class="btn btn-primary" id="exploreBtn">EXPLORAR</button>
-  </div>
-  <div class="scroll-cue" aria-hidden="true"><span></span></div>
-</header>
+<div id="app">
 
-<main>
+    <main id="slides" aria-label="Apresentação sobre radiação infravermelha">
 
-<!-- =================== ATO 1 =================== -->
-<section class="act" id="ato1" data-act="1">
-  <div class="act-marker"><span class="act-marker-num">ATO 01</span><span class="act-marker-name">O que é a luz?</span></div>
+        <!-- Os slides são criados automaticamente pelo JavaScript -->
 
-  <section class="block reveal">
-    <h2 class="block-title">O que é um LED?</h2>
-    <div class="led-def-grid">
-      <div class="led-def-card reveal">
-        <p class="led-acronym">LED</p>
-        <p class="led-full">Light Emitting Diode<br><em>Diodo Emissor de Luz</em></p>
-      </div>
-      <div class="led-def-card reveal">
-        <p class="def-label">O que ele faz?</p>
-        <p>Converte energia elétrica diretamente em luz visível, utilizando o fenômeno da</p>
-        <p class="highlight-term">ELETROLUMINESCÊNCIA</p>
-      </div>
-      <div class="led-def-card reveal">
-        <p class="def-label">Por que ele é eficiente?</p>
-        <p>Compare os dois caminhos da energia abaixo.</p>
-      </div>
-    </div>
+    </main>
 
-    <div class="compare-energy reveal">
-      <div class="compare-col">
-        <h3>Lâmpada incandescente</h3>
-        <div class="energy-path">
-          <div class="energy-node">ENERGIA</div>
-          <div class="energy-down">↓</div>
-          <div class="energy-node energy-loss">CALOR <span class="tag-bad">perdido</span></div>
-          <div class="energy-down">↓</div>
-          <div class="energy-node energy-small">LUZ</div>
+    <!-- NOTAS DO APRESENTADOR -->
+    <aside id="notesPanel" aria-live="polite">
+        <h3>Notas do apresentador</h3>
+        <div id="notesText"></div>
+    </aside>
+
+    <!-- MENU DE ÍNDICE -->
+    <section id="menu" aria-label="Índice da apresentação">
+        <div class="science-header">
+            <div>
+                <span class="slide-tag">Navegação</span>
+                <h2>Índice da <span class="gradient-text">apresentação</span></h2>
+            </div>
+            <button class="utility-btn" onclick="toggleMenu()">FECHAR ✕</button>
         </div>
-      </div>
-      <div class="compare-col">
-        <h3>LED</h3>
-        <div class="energy-path">
-          <div class="energy-node">ENERGIA</div>
-          <div class="energy-down">↓</div>
-          <div class="energy-node energy-full">LUZ <span class="tag-good">quase toda a energia</span></div>
+        <div class="menu-list" id="menuList"></div>
+    </section>
+
+    <!-- FUNDAMENTAÇÃO CIENTÍFICA -->
+    <section id="sciencePanel" aria-label="Fundamentação científica">
+        <div class="science-header">
+            <div>
+                <span class="slide-tag">Contexto histórico</span>
+                <h2>Fundamentação <span class="gradient-text">científica</span></h2>
+                <p>O desenvolvimento do conhecimento sobre radiação térmica.</p>
+            </div>
+            <button class="utility-btn" onclick="toggleScience()">FECHAR ✕</button>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="block reveal">
-    <h2 class="block-title">Você provavelmente vê LEDs todos os dias.</h2>
-    <p class="block-sub">Toque em cada item para descobrir por que o LED é usado ali.</p>
-    <div class="everyday-map" id="everydayMap">
-      <button class="everyday-item" data-info="Os pixels do celular usam microscópicos LEDs (ou OLEDs) RGB para formar cada cor da tela, com altíssima densidade e baixo consumo de energia.">📱<span>Celular</span></button>
-      <button class="everyday-item" data-info="TVs modernas usam LEDs como fonte de retroiluminação (LED TV) ou, em telas OLED, cada pixel é o próprio LED, gerando maior contraste e cores mais vivas.">📺<span>Televisão</span></button>
-      <button class="everyday-item" data-info="Monitores usam matrizes de LEDs RGB para reproduzir milhões de cores pixel a pixel, com resposta quase instantânea.">🖥️<span>Monitor</span></button>
-      <button class="everyday-item" data-info="Lâmpadas de LED substituíram incandescentes e fluorescentes por consumirem muito menos energia e durarem dezenas de milhares de horas.">💡<span>Iluminação</span></button>
-      <button class="everyday-item" data-info="Painéis de LED formam grandes telas públicas combinando milhares de pequenos LEDs RGB, visíveis a longas distâncias.">📢<span>Painéis</span></button>
-      <button class="everyday-item" data-info="Fitas e luzes decorativas usam LEDs RGB controláveis para criar efeitos coloridos com baixo custo energético.">✨<span>Decoração</span></button>
-    </div>
-    <div class="everyday-detail" id="everydayDetail" aria-live="polite"></div>
-  </section>
-</section>
+        <div class="timeline" id="timeline"></div>
+    </section>
 
-<!-- =================== ATO 2 =================== -->
-<section class="act" id="ato2" data-act="2">
-  <div class="act-marker"><span class="act-marker-num">ATO 02</span><span class="act-marker-name">O que existe dentro dele?</span></div>
-  <p class="act-transition reveal">A câmera entra no LED. É hora de olhar o material que faz tudo funcionar.</p>
+    <!-- CONTROLES -->
+    <footer id="controls">
 
-  <section class="block reveal">
-    <h2 class="block-title">O material que faz o LED funcionar</h2>
-    <p class="block-sub">Deslize o dedo (ou o mouse) pela régua para entender cada material.</p>
+        <button class="nav-btn" onclick="previousSlide()" aria-label="Slide anterior">←</button>
 
-    <div class="conductivity-ruler" id="ruler">
-      <div class="ruler-track">
-        <div class="ruler-zone" data-zone="conductor" style="left:0%;width:33.3%">CONDUTOR</div>
-        <div class="ruler-zone" data-zone="semicondutor" style="left:33.3%;width:33.4%">SEMICONDUTOR</div>
-        <div class="ruler-zone" data-zone="isolante" style="left:66.7%;width:33.3%">ISOLANTE</div>
-      </div>
-      <div class="ruler-info" id="rulerInfo">Passe o mouse ou toque em uma zona.</div>
-    </div>
+        <div class="progress-area">
+            <div class="progress-track">
+                <div id="progress"></div>
+            </div>
+        </div>
 
-    <p class="pull-quote reveal">Mas como controlamos um semicondutor?</p>
-    <p class="answer-reveal reveal">DOPAGEM</p>
-  </section>
+        <span class="counter" id="counter">1 / 7</span>
 
-  <section class="block reveal">
-    <h2 class="block-title">Dopagem</h2>
-    <div class="doping-grid">
-      <div class="doping-card reveal" id="dopingN">
-        <h3>Tipo N</h3>
-        <p>Excesso de elétrons. Portadores de carga <strong>negativa</strong>.</p>
-        <div class="lattice" id="latticeN"></div>
-      </div>
-      <div class="doping-card reveal" id="dopingP">
-        <h3>Tipo P</h3>
-        <p>Ausência de elétrons — formação de lacunas. Portadores de carga <strong>positiva</strong>.</p>
-        <div class="lattice" id="latticeP"></div>
-      </div>
-    </div>
-    <button class="btn btn-secondary reveal" id="approachBtn">APROXIMAR OS MATERIAIS</button>
-  </section>
+        <div class="timer" id="timer">
+            00:00
+            <small id="timerStatus">TEMPO DECORRIDO</small>
+        </div>
 
-  <section class="block reveal">
-    <h2 class="block-title">Junção PN</h2>
-    <div class="pnjunction" id="pnJunction">
-      <div class="pn-side pn-n">N<div class="pn-electrons"></div></div>
-      <div class="pn-mid"></div>
-      <div class="pn-side pn-p">P<div class="pn-holes"></div></div>
-    </div>
-    <p class="pull-quote reveal">A estrutura fundamental do diodo — inclusive do LED.</p>
-    <p class="pull-quote reveal">O que acontece quando aplicamos tensão no sentido correto?</p>
-    <button class="btn btn-primary reveal" id="discoverBtn">DESCOBRIR</button>
-  </section>
-</section>
+        <button class="nav-btn" onclick="nextSlide()" aria-label="Próximo slide">→</button>
 
-<!-- =================== ATO 3 =================== -->
-<section class="act" id="ato3" data-act="3">
-  <div class="act-marker"><span class="act-marker-num">ATO 03</span><span class="act-marker-name">Como eletricidade vira luz?</span></div>
+        <button class="utility-btn" onclick="toggleMenu()" aria-label="Abrir índice">M</button>
+        <button class="utility-btn" onclick="toggleNotes()" aria-label="Mostrar notas">N</button>
+        <button class="utility-btn" onclick="toggleScience()" aria-label="Fundamentação científica">C</button>
+        <button class="utility-btn" onclick="toggleFullscreen()" aria-label="Tela cheia">⛶</button>
 
-  <section class="block reveal">
-    <h2 class="block-title">Como a eletricidade vira luz?</h2>
-    <div class="sequence-steps" id="sequenceSteps">
-      <div class="seq-step reveal">1. Tensão elétrica é aplicada</div>
-      <div class="seq-step reveal">2. Elétrons do tipo N avançam</div>
-      <div class="seq-step reveal">3. Lacunas do tipo P avançam</div>
-      <div class="seq-step reveal">4. Elétron encontra uma lacuna</div>
-      <div class="seq-step reveal">5. O elétron perde energia</div>
-      <div class="seq-step reveal">6. Essa energia é liberada como fóton</div>
-      <div class="seq-step seq-final reveal">LUZ</div>
-    </div>
-  </section>
+    </footer>
 
-  <section class="block reveal">
-    <h2 class="block-title">Bandas de energia</h2>
-    <div class="bandgap-diagram">
-      <div class="band band-conduction">BANDA DE CONDUÇÃO<small>elétrons livres para transportar corrente</small></div>
-      <div class="band-gap-visual">BAND GAP<small>faixa de energia proibida entre as duas bandas</small></div>
-      <div class="band band-valence">BANDA DE VALÊNCIA<small>elétrons ligados aos átomos</small></div>
-    </div>
-  </section>
+</div>
 
-  <section class="block reveal">
-    <h2 class="block-title">Recombinação elétron–lacuna</h2>
-    <div class="recombination" id="recombination">
-      <div class="recomb-band recomb-top">BANDA DE CONDUÇÃO<div class="recomb-electron">e⁻</div></div>
-      <div class="recomb-photon">✨ FÓTON</div>
-      <div class="recomb-band recomb-bottom">BANDA DE VALÊNCIA<div class="recomb-hole">◯</div></div>
-    </div>
-    <div class="recomb-legend reveal">
-      <p><strong>Elétron</strong> → retorna para a banda de valência</p>
-      <p><strong>Lacuna</strong> → é preenchida</p>
-      <p><strong>Energia</strong> → é liberada</p>
-      <p><strong>Resultado</strong> → fóton</p>
-    </div>
-    <p class="highlight-term reveal">ELETROLUMINESCÊNCIA</p>
-    <p class="block-sub reveal">Produção de luz através da passagem de corrente elétrica em um material.</p>
-  </section>
+<script>
 
-  <section class="block reveal">
-    <h2 class="block-title">A física da cor</h2>
-    <p class="formula">E = h · f</p>
-    <div class="bandgap-slider-wrap">
-      <label for="bandgapSlider">Energia do band gap (ajuste e veja a cor do fóton mudar)</label>
-      <input type="range" id="bandgapSlider" min="0" max="100" value="50">
-      <div class="bandgap-preview">
-        <div class="bandgap-led" id="bandgapLed"></div>
-        <div class="bandgap-readout" id="bandgapReadout">Energia média · comprimento de onda intermediário</div>
-      </div>
-      <div class="scale-bar">
-        <span>VERMELHO</span>
-        <div class="scale-track"></div>
-        <span>AZUL</span>
-      </div>
-    </div>
-  </section>
+/* =========================================================
+   EDITE AQUI — 1. CONTEÚDO DOS SLIDES
+=========================================================
 
-  <section class="block reveal">
-    <h2 class="block-title">Por que existem LEDs de várias cores?</h2>
-    <div class="materials-flow" id="materialsFlow">
-      <button class="material-btn" data-material="gaas">GaAs — Arseneto de Gálio</button>
-      <button class="material-btn" data-material="gap">GaP — Fosfeto de Gálio</button>
-      <button class="material-btn" data-material="gan">GaN — Nitreto de Gálio</button>
-    </div>
-    <div class="flowchart" id="materialFlowchart">
-      <div class="flow-node" data-n="1">Material semicondutor</div>
-      <div class="flow-node" data-n="2">band gap</div>
-      <div class="flow-node" data-n="3">energia do fóton</div>
-      <div class="flow-node" data-n="4">comprimento de onda</div>
-      <div class="flow-node" data-n="5">cor</div>
-    </div>
-  </section>
-</section>
+   Para adicionar, remover ou reordenar slides, altere
+   somente o array SLIDES.
 
-<!-- =================== ATO 4 =================== -->
-<section class="act" id="ato4" data-act="4">
-  <div class="act-marker"><span class="act-marker-num">ATO 04</span><span class="act-marker-name">RGB</span></div>
+   Cada slide possui:
+   id, titulo, tempo, tipo, imagem, pontos, notas e modulo.
 
-  <section class="block reveal hero-mini">
-    <h2 class="block-title">RGB</h2>
-    <p class="pull-quote">Um LED RGB é realmente um único LED?</p>
-    <p class="answer-reveal">NÃO.</p>
-    <div class="rgb-open" id="rgbOpen">
-      <div class="rgb-chip"><span class="chip-r">🔴 RED</span><span class="chip-g">🟢 GREEN</span><span class="chip-b">🔵 BLUE</span></div>
-      <p class="block-sub">3 LEDs independentes dentro de um único componente.</p>
-    </div>
-  </section>
+   COLOQUE SUA IMAGEM AQUI:
+   Substitua src: "" pelo caminho da sua imagem.
+   Exemplo: src: "imagens/piscina.jpg"
 
-  <section class="block reveal">
-    <h2 class="block-title">Como funciona internamente?</h2>
-    <p class="block-sub">Cada LED possui material semicondutor adequado à sua cor, controle elétrico próprio, e pode funcionar separadamente, simultaneamente ou em diferentes intensidades.</p>
-    <div class="rgb-tester">
-      <div class="rgb-tester-led" id="rgbTesterLed"></div>
-      <div class="rgb-tester-buttons">
-        <button class="btn-rgb btn-r" data-c="r">R</button>
-        <button class="btn-rgb btn-g" data-c="g">G</button>
-        <button class="btn-rgb btn-b" data-c="b">B</button>
-      </div>
-    </div>
-  </section>
+========================================================= */
 
-  <section class="block reveal">
-    <h2 class="block-title">Ânodo comum × cátodo comum</h2>
-    <div class="anode-cathode-grid">
-      <div class="ac-card reveal">
-        <h3>Ânodo comum</h3>
-        <p>Terminal positivo compartilhado. Cores acionadas individualmente. Controle por nível negativo.</p>
-        <div class="ac-visual">+ → 🔴 🟢 🔵</div>
-      </div>
-      <div class="ac-card reveal">
-        <h3>Cátodo comum</h3>
-        <p>Terminal negativo compartilhado. Cores acionadas individualmente. Controle por nível positivo.</p>
-        <div class="ac-visual">🔴 🟢 🔵 → −</div>
-      </div>
-    </div>
-  </section>
+const SLIDES = [
 
-  <section class="block reveal">
-    <h2 class="block-title">RGB não é uma escolha aleatória.</h2>
-    <div class="eye-flow">
-      <div class="eye-icon">👁️</div>
-      <div class="flow-chain">
-        <span>Retina</span>→<span>Três tipos de cones</span>→<span class="cone-r">🔴 vermelho</span><span class="cone-g">🟢 verde</span><span class="cone-b">🔵 azul</span>→<span>Combinação dos estímulos</span>→<strong>PERCEPÇÃO DAS CORES</strong>
-      </div>
-    </div>
-  </section>
+{
+    id: 1,
+    titulo: "Para onde vai o calor da piscina?",
+    tempo: 1,
+    tipo: "capa",
 
-  <section class="block reveal">
-    <h2 class="block-title">Síntese aditiva</h2>
-    <p class="block-sub">Ajuste os três sliders e veja a cor resultante em tempo real.</p>
-    <div class="additive-lab">
-      <div class="additive-circles" id="additiveCircles">
-        <div class="add-circle circle-r"></div>
-        <div class="add-circle circle-g"></div>
-        <div class="add-circle circle-b"></div>
-      </div>
-      <div class="additive-sliders">
-        <label>R <input type="range" id="sliderR" min="0" max="255" value="255"></label>
-        <label>G <input type="range" id="sliderG" min="0" max="255" value="80"></label>
-        <label>B <input type="range" id="sliderB" min="0" max="255" value="80"></label>
-      </div>
-      <div class="additive-result" id="additiveResult">LUZ + LUZ + LUZ</div>
-    </div>
-    <div class="additive-facts reveal">
-      <p>Vermelho + Verde → <strong>Amarelo</strong></p>
-      <p>Vermelho + Azul → <strong>Magenta</strong></p>
-      <p>Verde + Azul → <strong>Ciano</strong></p>
-      <p>Vermelho + Verde + Azul → <strong>Branco</strong></p>
-    </div>
-  </section>
+    imagem: {
+        src: "",
+        alt: "Piscina aquecida ao entardecer",
+        legenda: "A energia térmica está constantemente em movimento."
+    },
 
-  <section class="block reveal">
-    <h2 class="block-title">Síntese aditiva × subtrativa</h2>
-    <div class="synthesis-compare">
-      <div class="synth-col">
-        <h3>Síntese aditiva — Luz</h3>
-        <p>Preto → adicionamos luz → cores → branco</p>
-        <p class="block-sub">Exemplos: LEDs, telas, monitores, TVs.</p>
-      </div>
-      <div class="synth-col">
-        <h3>Síntese subtrativa — Pigmento</h3>
-        <p>Branco → absorção de luz → cores</p>
-        <p class="block-sub">Exemplos: tintas, impressoras, CMYK.</p>
-      </div>
-    </div>
-    <p class="pull-quote reveal">RGB × CMYK</p>
-  </section>
+    pontos: [
+        "A água aquecida está constantemente trocando energia com o ambiente.",
+        "Mesmo sem vento, uma piscina pode perder calor.",
+        "Uma das formas dessa transferência é a radiação infravermelha."
+    ],
 
-  <section class="block reveal">
-    <h2 class="block-title">PWM — Controlando a intensidade</h2>
-    <p class="block-sub">Maior duty cycle → LED fica mais tempo ligado → maior intensidade percebida.</p>
-    <div class="pwm-lab">
-      <div class="pwm-led" id="pwmLed"></div>
-      <label for="pwmSlider">Duty cycle</label>
-      <input type="range" id="pwmSlider" min="0" max="100" value="50">
-      <div class="pwm-readout" id="pwmReadout">50%</div>
-      <div class="pwm-wave" id="pwmWave"></div>
-    </div>
-  </section>
+    notas: `
+        Comece apresentando uma situação cotidiana: uma piscina aquecida.
+        Pergunte ao público: se desligarmos o aquecimento, por que a água
+        começa a esfriar mesmo quando não existe vento?
 
-  <section class="block reveal">
-    <h2 class="block-title">O olho humano e o PWM</h2>
-    <p class="block-sub">O olho não percebe o piscar individual — ele interpreta a média da luz emitida.</p>
-    <div class="blink-lab">
-      <div class="blink-led" id="blinkLed"></div>
-      <button class="btn btn-secondary" id="blinkSpeedBtn">AUMENTAR VELOCIDADE</button>
-      <div class="blink-readout" id="blinkReadout">Piscar lento e visível</div>
-    </div>
-  </section>
-</section>
+        Explique que a água não está isolada. Ela troca energia com o
+        ambiente continuamente. Uma dessas formas de transferência é a
+        radiação térmica, especialmente na faixa do infravermelho.
 
-<!-- =================== ATO 5 =================== -->
-<section class="act" id="ato5" data-act="5">
-  <div class="act-marker"><span class="act-marker-num">ATO 05</span><span class="act-marker-name">Do conceito ao circuito</span></div>
+        Apresente o objetivo: entender como essa energia é emitida,
+        transferida e como podemos reduzir as perdas.
+    `
+},
 
-  <section class="block reveal">
-    <h2 class="block-title">Do conceito ao circuito</h2>
-    <div class="circuit-diagram" id="circuitDiagram">
-      <div class="circuit-source">FONTE</div>
-      <div class="circuit-branches">
-        <div class="circuit-branch"><span class="circuit-resistor">RESISTOR</span><span class="circuit-led led-r">🔴</span></div>
-        <div class="circuit-branch"><span class="circuit-resistor">RESISTOR</span><span class="circuit-led led-g">🟢</span></div>
-        <div class="circuit-branch"><span class="circuit-resistor">RESISTOR</span><span class="circuit-led led-b">🔵</span></div>
-      </div>
-    </div>
-    <p class="pull-quote reveal">Cada cor precisa de seu próprio resistor.</p>
-    <button class="btn btn-primary reveal" id="powerCircuitBtn">LIGAR CIRCUITO</button>
-  </section>
+{
+    id: 2,
+    titulo: "O que é radiação infravermelha?",
+    tempo: 1,
+    tipo: "texto-imagem",
+    modulo: "espectro",
 
-  <section class="block reveal">
-    <h2 class="block-title">Tensão direta</h2>
-    <div class="voltage-meters">
-      <div class="vmeter"><span class="vmeter-label">🔴 Vermelho</span><span class="vmeter-value">≈ 1,8 – 2,2 V</span></div>
-      <div class="vmeter"><span class="vmeter-label">🟢 Verde</span><span class="vmeter-value">≈ 3,0 – 3,4 V</span></div>
-      <div class="vmeter"><span class="vmeter-label">🔵 Azul</span><span class="vmeter-value">≈ 3,0 – 3,4 V</span></div>
-    </div>
-    <div class="chain-line reveal">Band gap maior → maior energia necessária → maior tensão direta</div>
-  </section>
+    imagem: {
+        src: "",
+        alt: "Diagrama do espectro eletromagnético",
+        legenda: "O infravermelho está localizado depois da luz vermelha."
+    },
 
-  <section class="block reveal">
-    <h2 class="block-title">Polaridade</h2>
-    <div class="polarity-lab">
-      <div class="polarity-diagram" id="polarityDiagram">
-        <span class="pol-plus">+</span> → Ânodo | LED | Cátodo → <span class="pol-minus">−</span>
-      </div>
-      <div class="polarity-result" id="polarityResult">✅ conduz corrente / ✅ acende</div>
-      <button class="btn btn-secondary" id="invertBtn">INVERTER POLARIDADE</button>
-    </div>
-    <p class="highlight-term reveal">LED POSSUI POLARIDADE.</p>
-  </section>
+    pontos: [
+        "É uma forma de onda eletromagnética.",
+        "Não precisa de ar ou outro meio material para se propagar.",
+        "Está associada à transferência de energia térmica.",
+        "É invisível ao olho humano.",
+        "Está localizada depois da luz vermelha no espectro eletromagnético."
+    ],
 
-  <section class="block reveal">
-    <h2 class="block-title">Por que usamos resistor?</h2>
-    <div class="resistor-compare">
-      <div class="rc-card rc-bad">
-        <h3>Sem resistor</h3>
-        <p>Fonte → LED</p>
-        <p>⚠️ Corrente excessiva<br>⚠️ Risco de dano</p>
-      </div>
-      <div class="rc-card rc-good">
-        <h3>Com resistor</h3>
-        <p>Fonte → Resistor → LED</p>
-        <p>✅ Corrente controlada<br>✅ Proteção do componente</p>
-      </div>
-    </div>
-    <p class="formula reveal">R = (V<sub>fonte</sub> − V<sub>LED</sub>) / I<sub>LED</sub></p>
-  </section>
+    notas: `
+        Explique que a radiação infravermelha faz parte do espectro
+        eletromagnético, assim como a luz visível, as ondas de rádio e
+        os raios X.
 
-  <section class="block reveal">
-    <h2 class="block-title">Calculadora interativa de resistor</h2>
-    <div class="resistor-calc">
-      <label>V fonte (V) <input type="number" id="vFonte" value="5" step="0.1"></label>
-      <label>V LED (V) <input type="number" id="vLed" value="2.0" step="0.1"></label>
-      <label>I LED (mA) <input type="number" id="iLed" value="15" step="1"></label>
-      <div class="resistor-result">R = <span id="resistorResult">200</span> Ω</div>
-      <p class="block-sub">Corrente típica: 10–20 mA. Como cada cor possui uma tensão direta diferente, os valores de resistência também podem ser diferentes.</p>
-    </div>
-  </section>
+        A principal característica é que ela não é percebida diretamente
+        pelos nossos olhos. Entretanto, podemos detectar seus efeitos
+        térmicos.
 
-  <section class="block reveal">
-    <h2 class="block-title">LED RGB no mundo real</h2>
-    <div class="everyday-map" id="realWorldMap">
-      <button class="everyday-item" data-info="Smartphones usam milhões de subpixels RGB para formar cada imagem na tela, com controle individual de intensidade.">📱<span>Smartphones</span></button>
-      <button class="everyday-item" data-info="Monitores usam matrizes RGB de altíssima densidade para reproduzir cores fiéis com resposta rápida.">🖥️<span>Monitores</span></button>
-      <button class="everyday-item" data-info="TVs modernas combinam LEDs RGB (ou OLED RGB) para produzir contraste alto e cores vibrantes.">📺<span>TVs</span></button>
-      <button class="everyday-item" data-info="Painéis publicitários usam milhares de LEDs RGB de alta potência, visíveis à distância mesmo sob luz solar.">📢<span>Painéis publicitários</span></button>
-      <button class="everyday-item" data-info="Iluminação decorativa usa LEDs RGB controláveis via PWM para criar efeitos e transições de cor.">💡<span>Iluminação decorativa</span></button>
-      <button class="everyday-item" data-info="Indicadores de equipamentos usam LEDs RGB para sinalizar estados diferentes (ligado, erro, aviso) com uma única peça.">⚙️<span>Indicadores</span></button>
-    </div>
-    <div class="everyday-detail" id="realWorldDetail" aria-live="polite"></div>
-  </section>
+        Destaque que, diferentemente da condução e da convecção, a
+        radiação não precisa de um meio material para se propagar.
+        Ela também pode atravessar o vácuo.
+    `
+},
 
-  <section class="block reveal">
-    <h2 class="block-title">Como uma tela produz milhões de cores?</h2>
-    <p class="block-sub">Aproxime a imagem para revelar os subpixels RGB.</p>
-    <div class="pixel-zoom-lab">
-      <canvas id="pixelCanvas" width="600" height="300" aria-label="Simulação de zoom em pixels RGB"></canvas>
-      <label for="zoomSlider">Zoom</label>
-      <input type="range" id="zoomSlider" min="0" max="100" value="0">
-    </div>
-  </section>
+{
+    id: 3,
+    titulo: "Por que objetos aquecidos emitem radiação infravermelha?",
+    tempo: 1.5,
+    tipo: "texto-imagem",
+    modulo: "particulas",
 
-  <section class="block reveal">
-    <h2 class="block-title">LED × tecnologias antigas</h2>
-    <div class="table-wrap">
-      <table class="compare-table">
-        <thead>
-          <tr><th>Característica</th><th>LED</th><th>Incandescente</th><th>Fluorescente</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Eficiência energética</td><td class="good">Alta</td><td class="bad">Baixa</td><td>Intermediária</td></tr>
-          <tr><td>Calor perdido</td><td class="good">Menor</td><td class="bad">Maior</td><td>Intermediário</td></tr>
-          <tr><td>Vida útil</td><td class="good">Muito alta</td><td class="bad">Menor</td><td>Maior que incandescente</td></tr>
-          <tr><td>Tempo de resposta</td><td class="good">Instantâneo</td><td>Rápido</td><td>Maior</td></tr>
-          <tr><td>Resistência</td><td class="good">Alta</td><td class="bad">Menor</td><td>Menor</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+    imagem: {
+        src: "",
+        alt: "Imagem termográfica de um copo com líquido quente",
+        legenda: "A temperatura está relacionada à energia das partículas."
+    },
 
-  <section class="block reveal">
-    <h2 class="block-title">As quatro grandes vantagens</h2>
-    <div class="advantages-grid">
-      <div class="adv-card reveal"><span class="adv-icon">⚡</span><h3>Eficiência energética</h3><p>Mais energia convertida em luz.</p></div>
-      <div class="adv-card reveal"><span class="adv-icon">⏳</span><h3>Durabilidade</h3><p>Vida útil que pode chegar a dezenas de milhares de horas.</p></div>
-      <div class="adv-card reveal"><span class="adv-icon">⚡</span><h3>Resposta rápida</h3><p>Acendimento praticamente instantâneo.</p></div>
-      <div class="adv-card reveal"><span class="adv-icon">🛡️</span><h3>Resistência</h3><p>Sem filamentos frágeis ou gases sob pressão.</p></div>
-    </div>
-  </section>
+    pontos: [
+        "A matéria é formada por partículas em constante movimento.",
+        "A temperatura está relacionada à energia cinética média dessas partículas.",
+        "Os processos microscópicos da matéria estão associados à emissão de radiação eletromagnética.",
+        "Corpos à temperatura ambiente ou moderadamente aquecidos emitem principalmente radiação infravermelha.",
+        "Todo corpo acima do zero absoluto emite radiação térmica."
+    ],
 
-  <section class="block reveal">
-    <h2 class="block-title">Do elétron à luz</h2>
-    <div class="summary-flow" id="summaryFlow">
-      <span>ENERGIA ELÉTRICA</span>
-      <span>TENSÃO NA JUNÇÃO PN</span>
-      <span>MOVIMENTO DE ELÉTRONS E LACUNAS</span>
-      <span>RECOMBINAÇÃO</span>
-      <span>PERDA DE ENERGIA</span>
-      <span>FÓTON</span>
-      <span>LUZ</span>
-      <span>COR</span>
-      <span>RGB</span>
-      <span>COMBINAÇÃO DE INTENSIDADES</span>
-      <span class="summary-final">CORES</span>
-    </div>
-  </section>
+    notas: `
+        Explique que toda matéria é constituída por átomos e moléculas
+        que apresentam movimento microscópico.
 
-  <section class="block reveal">
-    <h2 class="block-title">LED RGB — do semicondutor à tecnologia</h2>
-    <div class="layers-stack">
-      <div class="layer-card">
-        <h3>Física</h3>
-        <p>Bandas de energia · Band gap · Fótons · Eletroluminescência</p>
-      </div>
-      <div class="layer-card">
-        <h3>Eletrônica</h3>
-        <p>Junção PN · Polaridade · Resistores · PWM</p>
-      </div>
-      <div class="layer-card">
-        <h3>Óptica</h3>
-        <p>Comprimento de onda · Síntese aditiva · Percepção visual</p>
-      </div>
-      <div class="layer-card">
-        <h3>Tecnologia</h3>
-        <p>Telas · Iluminação · Painéis · Indicadores</p>
-      </div>
-    </div>
-    <div class="center-led-final" id="centerLedFinal">LED RGB</div>
-  </section>
-</section>
+        A temperatura está relacionada à energia cinética média dessas
+        partículas. Quanto maior a temperatura, maior essa energia.
 
-<!-- =================== ENCERRAMENTO =================== -->
-<section class="act closing" id="closing">
-  <h2 class="closing-title">VOCÊ CONSEGUE EXPLICAR?</h2>
-  <div class="quiz-list" id="quizList">
-    <div class="quiz-item" data-a="Ele converte energia elétrica quase diretamente em luz, sem precisar aquecer um filamento — quase toda a energia vira fóton, em vez de calor.">
-      <p class="quiz-q">01 — Por que um LED é eficiente?</p>
-      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
-      <p class="quiz-a"></p>
-    </div>
-    <div class="quiz-item" data-a="É a região de contato entre um semicondutor tipo N (excesso de elétrons) e um tipo P (excesso de lacunas) — a estrutura fundamental do diodo e do LED.">
-      <p class="quiz-q">02 — O que é uma junção PN?</p>
-      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
-      <p class="quiz-a"></p>
-    </div>
-    <div class="quiz-item" data-a="Quando um elétron da banda de condução se recombina com uma lacuna na banda de valência, ele perde energia — essa energia é liberada na forma de um fóton.">
-      <p class="quiz-q">03 — De onde vem o fóton?</p>
-      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
-      <p class="quiz-a"></p>
-    </div>
-    <div class="quiz-item" data-a="Porque vermelho, verde e azul são as cores às quais os três tipos de cones do olho humano são sensíveis — combinando suas intensidades, o cérebro percebe praticamente qualquer cor.">
-      <p class="quiz-q">04 — Por que RGB consegue formar tantas cores?</p>
-      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
-      <p class="quiz-a"></p>
-    </div>
-    <div class="quiz-item" data-a="Porque cada cor tem um band gap diferente, o que gera uma tensão direta diferente — logo, o cálculo R = (Vfonte − VLED) / ILED muda para cada uma.">
-      <p class="quiz-q">05 — Por que cada cor pode precisar de um resistor diferente?</p>
-      <button class="btn btn-secondary quiz-btn">REVELAR RESPOSTA</button>
-      <p class="quiz-a"></p>
-    </div>
-  </div>
-  <div class="closing-led-wrap">
-    <div class="closing-led" id="closingLed"></div>
-  </div>
-  <p class="closing-final">"DO ELÉTRON À LUZ."</p>
-  <p class="closing-tagline">Tudo começa com um elétron. O resultado pode ser qualquer cor.</p>
-</section>
+        Os movimentos e processos microscópicos de cargas elétricas
+        na matéria estão associados à emissão de radiação eletromagnética.
 
-</main>
+        Em temperaturas comuns, a maior parte dessa emissão ocorre
+        na faixa do infravermelho.
 
-<script src="script.js"></script>
+        Reforce a ideia central: todo corpo acima do zero absoluto
+        emite radiação térmica.
+    `
+},
+
+{
+    id: 4,
+    titulo: "Como a temperatura influencia a emissão?",
+    tempo: 1.5,
+    tipo: "formula",
+    modulo: "stefan",
+
+    imagem: {
+        src: "",
+        alt: "Gráfico ou diagrama de emissão térmica",
+        legenda: "A potência emitida depende da quarta potência da temperatura."
+    },
+
+    pontos: [
+        "Quanto maior a temperatura, maior a emissão de radiação térmica.",
+        "A potência emitida depende da quarta potência da temperatura absoluta.",
+        "A emissão também depende da área e das características da superfície.",
+        "Fundamentação científica: Lei de Stefan-Boltzmann."
+    ],
+
+    notas: `
+        Apresente a Lei de Stefan-Boltzmann.
+
+        Explique que a potência emitida depende da emissividade da
+        superfície, da constante de Stefan-Boltzmann, da área e da
+        quarta potência da temperatura absoluta.
+
+        Atenção: a temperatura precisa estar em Kelvin, e não em
+        graus Celsius.
+
+        Utilize a calculadora para demonstrar o efeito da temperatura.
+
+        Um exemplo importante: dobrar a temperatura absoluta, mantendo
+        as demais condições constantes, multiplica a potência emitida
+        por 16.
+    `
+},
+
+{
+    id: 5,
+    titulo: "Por que a piscina perde calor mesmo sem vento?",
+    tempo: 2,
+    tipo: "comparativo",
+    modulo: "perdas",
+
+    imagem: {
+        src: "",
+        alt: "Piscina com setas dos mecanismos de perda de energia",
+        legenda: "Radiação, evaporação e convecção."
+    },
+
+    pontos: [
+        "Radiação: emissão de ondas infravermelhas pela água.",
+        "Evaporação: moléculas de água passam para o estado gasoso levando energia.",
+        "Convecção: transferência de calor entre a superfície da água e o ar."
+    ],
+
+    notas: `
+        Este é um dos principais momentos da apresentação.
+
+        Explique os três mecanismos de perda de energia.
+
+        Primeiro, a radiação: a superfície da piscina emite ondas
+        eletromagnéticas, principalmente infravermelhas.
+
+        Segundo, a evaporação: moléculas com energia suficiente
+        deixam a superfície líquida e passam para o estado gasoso,
+        transportando energia.
+
+        Terceiro, a convecção: ocorre troca de calor entre a água
+        e o ar próximo à superfície.
+
+        Destaque que não é necessário existir vento para que esses
+        processos aconteçam. A evaporação continua, a radiação continua
+        e também pode existir convecção natural, causada por diferenças
+        de temperatura e densidade do ar.
+
+        Utilize os elementos interativos para destacar cada mecanismo.
+    `
+},
+
+{
+    id: 6,
+    titulo: "Como uma cobertura reduz as perdas de energia?",
+    tempo: 1.5,
+    tipo: "texto-imagem",
+    modulo: "cobertura",
+
+    imagem: {
+        src: "",
+        alt: "Piscina com cobertura térmica",
+        legenda: "A cobertura funciona como uma barreira para as trocas de energia."
+    },
+
+    pontos: [
+        "Reduzir a evaporação da água.",
+        "Diminuir a troca de calor com o ar.",
+        "Reduzir a perda de energia por radiação, dependendo do material.",
+        "Ajudar a manter a temperatura da piscina.",
+        "Diminuir a necessidade de aquecimento constante."
+    ],
+
+    notas: `
+        Apresente a cobertura térmica como uma solução para reduzir
+        as trocas de energia entre a piscina e o ambiente.
+
+        Sua principal contribuição costuma ser a redução da evaporação,
+        pois funciona como uma barreira entre a água e o ar.
+
+        Ela também pode reduzir a convecção e, dependendo de suas
+        propriedades ópticas e térmicas, reduzir a transferência
+        de energia por radiação.
+
+        Explique que o resultado depende do material e da construção
+        da cobertura.
+
+        Mostre a simulação de perda relativa antes e depois de ativar
+        a cobertura.
+    `
+},
+
+{
+    id: 7,
+    titulo: "O que aprendemos?",
+    tempo: 1.5,
+    tipo: "conclusao",
+
+    imagem: {
+        src: "",
+        alt: "Piscina coberta em uma imagem de encerramento",
+        legenda: "Compreender a energia é o primeiro passo para economizá-la."
+    },
+
+    pontos: [
+        "Todo corpo com temperatura acima do zero absoluto emite radiação térmica.",
+        "A emissão aumenta com a temperatura.",
+        "A piscina perde calor mesmo sem vento.",
+        "A cobertura térmica reduz as trocas de energia com o ambiente.",
+        "O conhecimento sobre radiação térmica permite desenvolver soluções para economizar energia."
+    ],
+
+    notas: `
+        Retome a pergunta inicial: para onde vai o calor da piscina?
+
+        Explique que agora sabemos que ele é transferido para o ambiente
+        por diferentes mecanismos, entre eles radiação, evaporação
+        e convecção.
+
+        Reforce que a temperatura influencia a emissão térmica e que
+        soluções como coberturas ajudam a reduzir as perdas.
+
+        Finalize relacionando a física com a engenharia e com a
+        sustentabilidade: compreender os mecanismos de transferência
+        de energia permite criar sistemas mais eficientes.
+
+        Convide o público a fazer perguntas.
+    `
+}
+
+];
+
+
+/* =========================================================
+   EDITE AQUI — 2. FUNDAMENTAÇÃO CIENTÍFICA
+========================================================= */
+
+const CIENTISTAS = [
+    {
+        nome: "William Herschel",
+        ano: "1800",
+        local: "Alemanha / Reino Unido",
+        descricao: `
+            Astrônomo que descobriu a radiação infravermelha em 1800,
+            em Bath, Inglaterra. Durante experimentos com a luz solar
+            decomposta por um prisma, observou aquecimento além da
+            região vermelha do espectro visível.
+        `
+    },
+    {
+        nome: "Josef Stefan",
+        ano: "1879",
+        local: "Eslovênia",
+        descricao: `
+            Físico que formulou experimentalmente a relação entre
+            a temperatura de um corpo e a energia total emitida
+            por radiação térmica. Seu trabalho estabeleceu a relação
+            conhecida como Lei de Stefan.
+        `
+    },
+    {
+        nome: "Ludwig Boltzmann",
+        ano: "1884",
+        local: "Áustria",
+        descricao: `
+            Desenvolveu a fundamentação teórica da lei de Stefan,
+            utilizando princípios da termodinâmica e da teoria
+            eletromagnética da radiação. A relação passou a ser
+            conhecida como Lei de Stefan-Boltzmann.
+        `
+    },
+    {
+        nome: "Max Planck",
+        ano: "1900",
+        local: "Alemanha",
+        descricao: `
+            Desenvolveu uma descrição teórica da radiação de corpo
+            negro, contribuindo para o nascimento da física quântica.
+            Seu trabalho explicou a distribuição espectral da
+            radiação térmica.
+        `
+    }
+];
+
+
+/* =========================================================
+   NÃO PRECISA MEXER — 3. SISTEMA DE MÓDULOS
+========================================================= */
+
+const MODULOS = {
+
+    /* ---------- ESPECTRO ELETROMAGNÉTICO ---------- */
+
+    espectro: function(container) {
+
+        const faixas = [
+            ["Rádio", "Ondas utilizadas em transmissões de rádio, televisão e comunicação.", "#7657bc", "📡"],
+            ["Micro-ondas", "Utilizadas em radares, comunicações e aquecimento de alimentos.", "#497cce", "📶"],
+            ["Infravermelho", "Associado à radiação térmica emitida pelos corpos.", "#ff633f", "🔥"],
+            ["Visível", "Faixa do espectro que pode ser percebida pelo olho humano.", "#e7b44d", "🌈"],
+            ["Ultravioleta", "Radiação com frequência maior que a luz visível.", "#9c70df", "☀️"],
+            ["Raios X", "Radiação de alta energia utilizada em exames de imagem.", "#53b4c7", "🩻"],
+            ["Gama", "Radiação de frequência muito elevada e grande energia por fóton.", "#db527b", "⚛️"]
+        ];
+
+        const colors = ["#624b99","#437bc2","#ff563e","#d7a94c","#9561d2","#55a9be","#c94672"];
+
+        container.innerHTML = `
+            <div class="card spectrum">
+                <div>
+                    <span class="slide-tag">Espectro eletromagnético</span>
+                    <p style="font-size:12px">Clique ou passe o mouse sobre uma faixa para explorar.</p>
+                </div>
+
+                <div class="spectrum-bar" id="spectrumBar">
+                    ${faixas.map((f,i)=>`
+                        <button class="spectrum-item ${i===2?'selected':''}"
+                            style="background:${colors[i]}"
+                            data-index="${i}"
+                            aria-label="${f[0]}">
+                            <span class="mini">${f[3]}</span>
+                            ${f[0]}
+                        </button>
+                    `).join("")}
+                </div>
+
+                <div class="spectrum-info">
+                    <h3 id="spectrumName" style="color:var(--orange)">Infravermelho</h3>
+                    <p id="spectrumDescription">${faixas[2][1]}</p>
+                    <span class="invisible-label">INVISÍVEL AO OLHO HUMANO</span>
+                </div>
+            </div>
+        `;
+
+        const buttons = container.querySelectorAll(".spectrum-item");
+
+        function select(i) {
+            buttons.forEach(b=>b.classList.remove("selected"));
+            buttons[i].classList.add("selected");
+
+            container.querySelector("#spectrumName").textContent = faixas[i][0];
+            container.querySelector("#spectrumDescription").textContent = faixas[i][1];
+        }
+
+        buttons.forEach((button,i)=>{
+            button.addEventListener("mouseenter",()=>select(i));
+            button.addEventListener("click",()=>select(i));
+            button.addEventListener("focus",()=>select(i));
+        });
+
+        return ()=>{};
+    },
+
+    /* ---------- MOVIMENTO DAS PARTÍCULAS ---------- */
+
+    particulas: function(container) {
+
+        container.innerHTML = `
+            <div class="card">
+                <span class="slide-tag">Modelo microscópico</span>
+                <div class="particle-box">
+                    <canvas id="particleCanvas"></canvas>
+                </div>
+
+                <div class="control">
+                    <label>
+                        Temperatura do objeto
+                        <output id="particleTemp">40 °C</output>
+                    </label>
+                    <input type="range" id="particleSlider"
+                        min="20" max="500" value="40">
+                </div>
+
+                <div class="scientific-note">
+                    Todo corpo acima do zero absoluto emite radiação térmica.
+                </div>
+                <p style="font-size:11px;margin-top:12px">
+                    Modelo visual ilustrativo do movimento microscópico.
+                </p>
+            </div>
+        `;
+
+        const canvas = container.querySelector("#particleCanvas");
+        const ctx = canvas.getContext("2d");
+        const slider = container.querySelector("#particleSlider");
+        const output = container.querySelector("#particleTemp");
+
+        let particles = [];
+        let frame;
+        let temperature = 40;
+        let active = true;
+
+        function resize() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio || 1,2);
+            canvas.width = rect.width*dpr;
+            canvas.height = rect.height*dpr;
+            ctx.setTransform(dpr,0,0,dpr,0,0);
+
+            particles = Array.from({length:35},()=>({
+                x: Math.random()*rect.width,
+                y: Math.random()*rect.height,
+                vx: Math.random()-.5,
+                vy: Math.random()-.5,
+                r: 2+Math.random()*2
+            }));
+        }
+
+        slider.addEventListener("input",()=>{
+            temperature = Number(slider.value);
+            output.textContent = temperature+" °C";
+        });
+
+        function draw() {
+            if(!active) return;
+
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+
+            ctx.clearRect(0,0,w,h);
+
+            const intensity = (temperature+273.15)/293.15;
+            const speed = Math.min(.2*intensity,.8);
+            const glow = Math.min(temperature/500,1);
+
+            particles.forEach(p=>{
+                p.x += p.vx*speed*3;
+                p.y += p.vy*speed*3;
+
+                if(p.x<0||p.x>w) p.vx *= -1;
+                if(p.y<0||p.y>h) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                ctx.fillStyle = `rgba(255,${180-glow*110},80,.9)`;
+                ctx.fill();
+            });
+
+            for(let i=0;i<4;i++){
+                const x = w*.5 + Math.sin(Date.now()*.001+i)*w*.3;
+                ctx.beginPath();
+                ctx.ellipse(x,h*.2,12+i*5,4+i*2,0,0,Math.PI*2);
+                ctx.strokeStyle = `rgba(255,${100+glow*90},60,${.15+glow*.15})`;
+                ctx.stroke();
+            }
+
+            frame = requestAnimationFrame(draw);
+        }
+
+        resize();
+        draw();
+
+        return ()=>{
+            active = false;
+            cancelAnimationFrame(frame);
+        };
+    },
+
+    /* ---------- CALCULADORA STEFAN-BOLTZMANN ---------- */
+
+    stefan: function(container) {
+
+        container.innerHTML = `
+            <div class="card">
+                <span class="slide-tag">Calculadora física</span>
+
+                <div class="formula">
+                    P = ε · σ · A · T<sup>4</sup>
+                </div>
+
+                <div class="control">
+                    <label>
+                        Temperatura
+                        <output id="tempC">40 °C</output>
+                    </label>
+                    <input id="tempInput" type="range" min="0" max="500" value="40">
+                </div>
+
+                <div class="control">
+                    <label>
+                        Emissividade (ε)
+                        <output id="emissivity">0,95</output>
+                    </label>
+                    <input id="emInput" type="range" min="0" max="1" step=".01" value=".95">
+                </div>
+
+                <div class="control">
+                    <label>
+                        Área (A)
+                        <output id="area">10 m²</output>
+                    </label>
+                    <input id="areaInput" type="range" min=".1" max="100" step=".1" value="10">
+                </div>
+
+                <div class="result">
+                    <span style="font-size:12px;color:var(--muted)">
+                        POTÊNCIA EMITIDA
+                    </span>
+                    <strong id="power">0 W</strong>
+                    <span id="kelvin" style="font-size:12px;color:var(--muted)">
+                        Temperatura absoluta: 313,15 K
+                    </span>
+                </div>
+
+                <h3 style="font-size:14px;margin:20px 0 0">
+                    Relação entre potência e temperatura
+                </h3>
+
+                <canvas id="stefanChart"></canvas>
+
+                <div class="important">
+                    <b>Observe:</b> dobrar a temperatura absoluta multiplica
+                    a potência emitida por 16, mantendo as demais variáveis constantes.
+                </div>
+
+                <div class="variables">
+                    <div><b>P</b> = potência emitida (W)</div>
+                    <div><b>ε</b> = emissividade da superfície</div>
+                    <div><b>σ</b> = 5,670 × 10⁻⁸ W·m⁻²·K⁻⁴</div>
+                    <div><b>A</b> = área da superfície (m²)</div>
+                    <div><b>T</b> = temperatura absoluta (K)</div>
+                </div>
+
+                <p style="font-size:11px;margin-top:12px">
+                    A expressão calcula a potência emitida por uma superfície idealizada.
+                    Para calcular a troca líquida com o ambiente, também seria
+                    necessário considerar a radiação recebida.
+                </p>
+            </div>
+        `;
+
+        const sigma = 5.670374419e-8;
+
+        const tInput = container.querySelector("#tempInput");
+        const eInput = container.querySelector("#emInput");
+        const aInput = container.querySelector("#areaInput");
+
+        const chart = container.querySelector("#stefanChart");
+        const ctx = chart.getContext("2d");
+
+        function calculate() {
+
+            const c = Number(tInput.value);
+            const T = c+273.15;
+            const e = Number(eInput.value);
+            const A = Number(aInput.value);
+
+            const P = e*sigma*A*Math.pow(T,4);
+
+            container.querySelector("#tempC").textContent = c+" °C";
+            container.querySelector("#emissivity").textContent = e.toFixed(2).replace(".",",");
+            container.querySelector("#area").textContent = A.toFixed(1)+" m²";
+
+            container.querySelector("#power").textContent =
+                P.toLocaleString("pt-BR",{maximumFractionDigits:2})+" W";
+
+            container.querySelector("#kelvin").textContent =
+                "Temperatura absoluta: "+T.toFixed(2)+" K";
+
+            drawChart(c,e,A);
+        }
+
+        function drawChart(currentC,e,A) {
+
+            const rect = chart.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio||1,2);
+
+            chart.width = rect.width*dpr;
+            chart.height = rect.height*dpr;
+
+            ctx.setTransform(dpr,0,0,dpr,0,0);
+
+            const w=rect.width, h=rect.height;
+            const left=37, bottom=25, top=12, right=10;
+
+            ctx.clearRect(0,0,w,h);
+
+            const maxP = e*sigma*A*Math.pow(773.15,4);
+
+            function X(t) {
+                return left+(t/500)*(w-left-right);
+            }
+
+            function Y(p) {
+                return h-bottom-(p/maxP)*(h-bottom-top);
+            }
+
+            ctx.strokeStyle="rgba(255,255,255,.15)";
+            ctx.lineWidth=1;
+
+            for(let i=0;i<=4;i++){
+                const y=top+(h-bottom-top)*i/4;
+                ctx.beginPath();
+                ctx.moveTo(left,y);
+                ctx.lineTo(w-right,y);
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+
+            for(let t=0;t<=500;t+=5){
+                const p=e*sigma*A*Math.pow(t+273.15,4);
+                if(t===0) ctx.moveTo(X(t),Y(p));
+                else ctx.lineTo(X(t),Y(p));
+            }
+
+            ctx.strokeStyle="#ff873d";
+            ctx.lineWidth=2.5;
+            ctx.stroke();
+
+            const currentP=e*sigma*A*Math.pow(currentC+273.15,4);
+
+            ctx.beginPath();
+            ctx.arc(X(currentC),Y(currentP),5,0,Math.PI*2);
+            ctx.fillStyle="#55d9e8";
+            ctx.fill();
+
+            ctx.fillStyle="#a6adbf";
+            ctx.font="10px Arial";
+            ctx.fillText("0 °C",left,h-5);
+            ctx.fillText("500 °C",w-45,h-5);
+            ctx.fillText("P (W)",3,12);
+            ctx.fillText("T (°C)",w/2,h-5);
+        }
+
+        [tInput,eInput,aInput].forEach(input=>{
+            input.addEventListener("input",calculate);
+        });
+
+        calculate();
+
+        return ()=>{};
+    },
+
+    /* ---------- MECANISMOS DE PERDA DA PISCINA ---------- */
+
+    perdas: function(container) {
+
+        container.innerHTML = `
+            <div class="card">
+                <span class="slide-tag">Explore os mecanismos</span>
+
+                <div class="pool-visual">
+                    <div class="pool-ground"></div>
+                    <div class="pool-water"></div>
+
+                    <button class="pool-effect rad selected" data-effect="rad">
+                        <span class="effect-symbol">〰️</span>
+                        <span class="effect-line">RADIAÇÃO</span>
+                    </button>
+
+                    <button class="pool-effect evap" data-effect="evap">
+                        <span class="effect-symbol">♨️</span>
+                        <span class="effect-line">EVAPORAÇÃO</span>
+                    </button>
+
+                    <button class="pool-effect conv" data-effect="conv">
+                        <span class="effect-symbol">↗</span>
+                        <span class="effect-line">CONVECÇÃO</span>
+                    </button>
+
+                    <div class="pool-label">ÁGUA AQUECIDA</div>
+                </div>
+
+                <div class="pool-description" id="poolDescription">
+                    <b style="color:var(--orange)">Radiação:</b>
+                    a superfície da água emite ondas eletromagnéticas,
+                    principalmente infravermelhas, transferindo energia
+                    térmica para o ambiente.
+                </div>
+
+                <div class="important">
+                    <b>Importante:</b> mesmo sem vento, a radiação e a evaporação
+                    continuam acontecendo. Também pode existir convecção natural
+                    devido às diferenças de temperatura e densidade do ar.
+                </div>
+            </div>
+        `;
+
+        const descriptions = {
+            rad: `<b style="color:var(--orange)">Radiação:</b>
+                emissão de ondas infravermelhas pela superfície da água.
+                A energia é transferida por ondas eletromagnéticas.`,
+
+            evap: `<b style="color:var(--cyan)">Evaporação:</b>
+                moléculas de água passam do estado líquido para o gasoso,
+                levando energia consigo. É um mecanismo importante de
+                resfriamento da piscina.`,
+
+            conv: `<b style="color:#d88aff">Convecção:</b>
+                transferência de calor entre a superfície da água e o ar.
+                O movimento do ar pode ser natural ou intensificado pelo vento.`
+        };
+
+        const buttons=container.querySelectorAll(".pool-effect");
+
+        function select(type) {
+            buttons.forEach(b=>b.classList.toggle(
+                "selected",b.dataset.effect===type
+            ));
+
+            container.querySelector("#poolDescription").innerHTML =
+                descriptions[type];
+        }
+
+        buttons.forEach(b=>{
+            b.addEventListener("mouseenter",()=>select(b.dataset.effect));
+            b.addEventListener("focus",()=>select(b.dataset.effect));
+            b.addEventListener("click",()=>select(b.dataset.effect));
+        });
+
+        return ()=>{};
+    },
+
+    /* ---------- COBERTURA TÉRMICA ---------- */
+
+    cobertura: function(container) {
+
+        container.innerHTML = `
+            <div class="card">
+                <span class="slide-tag">Simulação de eficiência</span>
+
+                <button class="cover-toggle" id="coverToggle">
+                    <span class="switch"></span>
+                    <span id="coverStatus">Cobertura desligada</span>
+                </button>
+
+                <div class="pool-visual" id="coverPool">
+                    <div class="pool-ground"></div>
+                    <div class="pool-water"></div>
+                    <div class="cover-sheet"></div>
+
+                    <div class="pool-effect rad">
+                        <span class="effect-symbol">〰️</span>
+                        <span class="effect-line">RADIAÇÃO</span>
+                    </div>
+
+                    <div class="pool-effect evap">
+                        <span class="effect-symbol">♨️</span>
+                        <span class="effect-line">EVAPORAÇÃO</span>
+                    </div>
+
+                    <div class="pool-effect conv">
+                        <span class="effect-symbol">↗</span>
+                        <span class="effect-line">CONVECÇÃO</span>
+                    </div>
+
+                    <div class="pool-label">ÁGUA AQUECIDA</div>
+                </div>
+
+                <div style="margin-top:22px">
+                    <b style="font-size:13px">Perda de energia relativa</b>
+                    <div class="loss-meter">
+                        <div class="loss-fill" id="lossFill"></div>
+                    </div>
+                    <div class="meter-label">
+                        <span>Menor perda</span>
+                        <strong id="lossValue">100%</strong>
+                        <span>Maior perda</span>
+                    </div>
+                </div>
+
+                <div class="scientific-note">
+                    A cobertura reduz principalmente a evaporação e pode
+                    diminuir a convecção e a radiação, conforme o material.
+                </div>
+
+                <p style="font-size:11px;margin-top:12px">
+                    * Medidor ilustrativo e didático. Não representa uma
+                    medição real nem uma porcentagem universal de economia.
+                </p>
+            </div>
+        `;
+
+        const button=container.querySelector("#coverToggle");
+        const pool=container.querySelector("#coverPool");
+        const fill=container.querySelector("#lossFill");
+        const value=container.querySelector("#lossValue");
+        const status=container.querySelector("#coverStatus");
+
+        let covered=false;
+
+        button.addEventListener("click",()=>{
+            covered=!covered;
+
+            pool.classList.toggle("covered",covered);
+            button.classList.toggle("covered",covered);
+
+            status.textContent=covered?
+                "Cobertura ligada":"Cobertura desligada";
+
+            fill.style.width=covered?"35%":"100%";
+            value.textContent=covered?"35%":"100%";
+        });
+
+        return ()=>{};
+    }
+
+};
+
+
+/* =========================================================
+   NÃO PRECISA MEXER — 4. MOTOR DE APRESENTAÇÃO
+========================================================= */
+
+const slidesContainer = document.getElementById("slides");
+
+let current = 0;
+let moduleCleanup = null;
+let startTime = null;
+let timerInterval = null;
+let lastWheel = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+let activeSlideStart = 0;
+
+const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+).matches;
+
+
+/* ---------- CRIAÇÃO DOS SLIDES ---------- */
+
+function createImage(image) {
+
+    const wrapper=document.createElement("div");
+    wrapper.className="image-frame";
+
+    const placeholder=document.createElement("div");
+    placeholder.className="image-placeholder";
+
+    placeholder.innerHTML=`
+        <span class="symbol">♨</span>
+        <b>RADIAÇÃO TÉRMICA</b>
+        <small>Espaço reservado para imagem</small>
+    `;
+
+    wrapper.appendChild(placeholder);
+
+    if(image.src) {
+        const img=document.createElement("img");
+        img.src=image.src;
+        img.alt=image.alt||"Imagem ilustrativa";
+
+        img.onerror=()=>{
+            img.remove();
+        };
+
+        img.onload=()=>{
+            placeholder.style.display="none";
+        };
+
+        wrapper.appendChild(img);
+    }
+
+    const caption=document.createElement("div");
+    caption.className="image-caption";
+    caption.textContent=image.legenda||"";
+    wrapper.appendChild(caption);
+
+    return wrapper;
+}
+
+
+function createSlide(slide,index) {
+
+    const section=document.createElement("section");
+
+    section.className="slide";
+    section.id="slide-"+slide.id;
+    section.setAttribute("aria-label",slide.titulo);
+
+    const inner=document.createElement("div");
+    inner.className="slide-inner";
+
+    if(slide.tipo==="capa") {
+
+        inner.innerHTML=`
+            <div class="cover-content">
+                <span class="slide-tag">Física · Termodinâmica · Energia</span>
+                <h1>RADIAÇÃO<br><span class="gradient-text">INFRAVERMELHA</span></h1>
+                <h2 style="font-size:clamp(23px,3vw,38px);color:var(--cyan)">
+                    e perda de energia da piscina
+                </h2>
+                <p class="subtitle">
+                    Como a energia térmica é emitida, transferida
+                    e como podemos reduzir suas perdas?
+                </p>
+                <div class="cover-bottom">
+                    UMA INVESTIGAÇÃO SOBRE EMISSÃO E ABSORÇÃO DE RADIAÇÃO TÉRMICA
+                </div>
+            </div>
+            <div class="cover-decoration"></div>
+        `;
+
+        inner.querySelector(".cover-content").appendChild(
+            createImage(slide.imagem)
+        );
+
+    } else if(slide.tipo==="conclusao") {
+
+        inner.innerHTML=`
+            <div class="split">
+                <div>
+                    <span class="slide-tag">Síntese da investigação</span>
+                    <h2>${slide.titulo}</h2>
+                    <div class="points" id="conclusionPoints">
+                        ${slide.pontos.map((p,i)=>`
+                            <button class="conclusion-link" style="opacity:0;animation:bulletIn .5s forwards;animation-delay:${i*.2}s"
+                                data-index="${i}">
+                                <span>0${i+1}</span>
+                                ${p}
+                            </button>
+                        `).join("")}
+                    </div>
+                </div>
+                <div class="image-holder"></div>
+            </div>
+        `;
+
+        inner.querySelector(".image-holder").appendChild(
+            createImage(slide.imagem)
+        );
+
+        inner.querySelectorAll(".conclusion-link").forEach(button=>{
+            button.addEventListener("click",()=>{
+                const destinations=[3,4,5,6,7];
+                goToSlide(destinations[Number(button.dataset.index)]-1);
+            });
+        });
+
+    } else {
+
+        const layoutClass=slide.tipo==="formula"?"formula-layout":"";
+
+        inner.innerHTML=`
+            <div class="split ${layoutClass}">
+                <div class="text-column">
+                    <span class="slide-tag">Etapa ${String(slide.id).padStart(2,"0")}</span>
+                    <h2>${slide.titulo}</h2>
+
+                    <ul class="points">
+                        ${slide.pontos.map((p,i)=>`
+                            <li style="--i:${i}">${p}</li>
+                        `).join("")}
+                    </ul>
+                </div>
+
+                <div class="image-column">
+                    <div class="image-holder"></div>
+                    <div class="module-holder"></div>
+                </div>
+            </div>
+        `;
+
+        inner.querySelector(".image-holder").appendChild(
+            createImage(slide.imagem)
+        );
+
+    }
+
+    section.appendChild(inner);
+    slidesContainer.appendChild(section);
+
+}
+
+
+/* ---------- RENDERIZAÇÃO AUTOMÁTICA ---------- */
+
+SLIDES.forEach(createSlide);
+
+function buildMenu() {
+
+    const list=document.getElementById("menuList");
+
+    list.innerHTML=SLIDES.map((s,i)=>`
+        <button class="menu-item" data-index="${i}">
+            <small>SLIDE ${String(i+1).padStart(2,"0")} · ${s.tempo} MIN</small>
+            <b>${s.titulo}</b>
+        </button>
+    `).join("");
+
+    list.querySelectorAll(".menu-item").forEach(button=>{
+        button.addEventListener("click",()=>{
+            goToSlide(Number(button.dataset.index));
+            toggleMenu();
+        });
+    });
+
+}
+
+buildMenu();
+
+
+/* ---------- NAVEGAÇÃO ---------- */
+
+function goToSlide(index) {
+
+    if(index<0||index>=SLIDES.length||index===current) return;
+
+    if(moduleCleanup) {
+        moduleCleanup();
+        moduleCleanup=null;
+    }
+
+    const oldSlide=document.querySelector(".slide.active");
+    if(oldSlide) oldSlide.classList.remove("active");
+
+    current=index;
+
+    const slide=SLIDES[current];
+    const element=document.getElementById("slide-"+slide.id);
+
+    element.classList.add("active");
+
+    element.scrollTop=0;
+
+    const moduleHolder=element.querySelector(".module-holder");
+
+    if(moduleHolder && slide.modulo && MODULOS[slide.modulo]) {
+        moduleCleanup=MODULOS[slide.modulo](moduleHolder);
+    }
+
+    document.getElementById("notesText").textContent=slide.notas;
+
+    updateNavigation();
+
+    history.replaceState(null,"","#slide-"+slide.id);
+
+    activeSlideStart=Date.now();
+}
+
+
+function nextSlide() {
+    if(current<SLIDES.length-1) goToSlide(current+1);
+}
+
+function previousSlide() {
+    if(current>0) goToSlide(current-1);
+}
+
+
+function updateNavigation() {
+
+    const total=SLIDES.length;
+
+    document.getElementById("counter").textContent=
+        `${current+1} / ${total}`;
+
+    const progress=((current+1)/total)*100;
+
+    document.getElementById("progress").style.width=progress+"%";
+}
+
+
+/* ---------- INICIALIZAÇÃO POR HASH ---------- */
+
+function initialize() {
+
+    const match=location.hash.match(/slide-(\d+)/);
+
+    let initial=match?SLIDES.findIndex(s=>s.id===Number(match[1])):0;
+
+    if(initial<0) initial=0;
+
+    current=-1;
+    goToSlide(initial);
+}
+
+initialize();
+
+
+/* ---------- TECLADO ---------- */
+
+document.addEventListener("keydown",event=>{
+
+    if(event.target.matches("input,textarea,button[data-input]")) {
+        if(event.target.matches("input,textarea")) return;
+    }
+
+    if(event.key==="ArrowRight"||event.key==="PageDown") {
+        nextSlide();
+    }
+
+    if(event.key==="ArrowLeft"||event.key==="PageUp") {
+        previousSlide();
+    }
+
+    if(event.code==="Space") {
+        event.preventDefault();
+        nextSlide();
+    }
+
+    if(event.key.toLowerCase()==="m") toggleMenu();
+
+    if(event.key.toLowerCase()==="n") toggleNotes();
+
+    if(event.key.toLowerCase()==="c") toggleScience();
+
+    if(event.key.toLowerCase()==="f") toggleFullscreen();
+
+    if(event.key==="Escape") {
+        document.getElementById("menu").classList.remove("open");
+        document.getElementById("sciencePanel").classList.remove("open");
+    }
+
+});
+
+
+/* ---------- RODA DO MOUSE ---------- */
+
+document.addEventListener("wheel",event=>{
+
+    const now=Date.now();
+
+    if(now-lastWheel<850) return;
+
+    if(Math.abs(event.deltaY)<30) return;
+
+    if(event.target.closest("#menu,#sciencePanel,#notesPanel")) return;
+
+    lastWheel=now;
+
+    if(event.deltaY>0) nextSlide();
+    else previousSlide();
+
+},{passive:true});
+
+
+/* ---------- SWIPE ---------- */
+
+document.addEventListener("touchstart",event=>{
+    touchStartX=event.changedTouches[0].clientX;
+    touchStartY=event.changedTouches[0].clientY;
+},{passive:true});
+
+document.addEventListener("touchend",event=>{
+
+    const dx=event.changedTouches[0].clientX-touchStartX;
+    const dy=event.changedTouches[0].clientY-touchStartY;
+
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)) {
+        if(dx<0) nextSlide();
+        else previousSlide();
+    }
+
+},{passive:true});
+
+
+/* ---------- MENU ---------- */
+
+function toggleMenu() {
+    document.getElementById("menu").classList.toggle("open");
+}
+
+function toggleNotes() {
+    document.getElementById("notesPanel").classList.toggle("visible");
+}
+
+function toggleScience() {
+    document.getElementById("sciencePanel").classList.toggle("open");
+}
+
+async function toggleFullscreen() {
+
+    try {
+        if(!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+        } else {
+            await document.exitFullscreen();
+        }
+    } catch(error) {
+        console.warn("Tela cheia indisponível:",error);
+    }
+
+}
+
+
+/* ---------- FUNDAMENTAÇÃO CIENTÍFICA ---------- */
+
+function buildTimeline() {
+
+    const timeline=document.getElementById("timeline");
+
+    timeline.innerHTML=CIENTISTAS.map((c,i)=>`
+        <div class="timeline-card">
+            <button class="timeline-button" aria-expanded="false">
+                <div class="year">${c.ano}</div>
+                <h3>${c.nome}</h3>
+                <small style="color:var(--cyan)">${c.local}</small>
+                <div class="timeline-details">${c.descricao}</div>
+                <small style="display:block;margin-top:15px;color:var(--orange)">
+                    CLIQUE PARA EXPLORAR +
+                </small>
+            </button>
+        </div>
+    `).join("");
+
+    timeline.querySelectorAll(".timeline-button").forEach(button=>{
+        button.addEventListener("click",()=>{
+            const expanded=button.classList.toggle("expanded");
+            button.setAttribute("aria-expanded",String(expanded));
+        });
+
+        button.addEventListener("mouseenter",()=>{
+            button.classList.add("expanded");
+            button.setAttribute("aria-expanded","true");
+        });
+
+        button.addEventListener("mouseleave",()=>{
+            button.classList.remove("expanded");
+            button.setAttribute("aria-expanded","false");
+        });
+    });
+
+}
+
+buildTimeline();
+
+
+/* ---------- TIMER GERAL DE 10 MINUTOS ---------- */
+
+startTime=Date.now();
+
+const totalDuration=SLIDES.reduce((sum,s)=>sum+s.tempo,0)*60;
+
+function formatTime(seconds) {
+
+    const mins=Math.floor(seconds/60);
+    const secs=Math.floor(seconds%60);
+
+    return String(mins).padStart(2,"0")+":"+
+           String(secs).padStart(2,"0");
+}
+
+function updateTimer() {
+
+    const elapsed=(Date.now()-startTime)/1000;
+
+    const expected=SLIDES
+        .slice(0,current)
+        .reduce((sum,s)=>sum+s.tempo,0)*60;
+
+    const currentSlideTime=SLIDES[current].tempo*60;
+
+    const slideElapsed=(Date.now()-activeSlideStart)/1000;
+
+    const target=expected+currentSlideTime;
+
+    const difference=elapsed-target;
+
+    const timer=document.getElementById("timer");
+    const status=document.getElementById("timerStatus");
+
+    timer.firstChild.textContent=formatTime(elapsed);
+
+    timer.classList.remove("late","early");
+
+    if(elapsed>totalDuration) {
+        status.textContent="TEMPO EXCEDIDO";
+        timer.classList.add("late");
+    } else if(difference>20) {
+        status.textContent="ATRASADO";
+        timer.classList.add("late");
+    } else if(difference<-20) {
+        status.textContent="ADIANTADO";
+        timer.classList.add("early");
+    } else {
+        status.textContent="NO RITMO";
+    }
+
+    const remaining=Math.max(0,currentSlideTime-slideElapsed);
+
+    timer.title=
+        `Tempo previsto do slide: ${SLIDES[current].tempo} min. `+
+        `Tempo restante estimado neste slide: ${formatTime(remaining)}. `+
+        `Duração total prevista: ${formatTime(totalDuration)}.`;
+
+}
+
+timerInterval=setInterval(updateTimer,500);
+
+
+/* =========================================================
+   NÃO PRECISA MEXER — 5. FUNDO DE PARTÍCULAS E CURSOR
+========================================================= */
+
+(function(){
+
+    const canvas=document.getElementById("universe");
+    const ctx=canvas.getContext("2d");
+    const cursor=document.getElementById("cursor-glow");
+
+    let width,height;
+    let particles=[];
+    let mouse={x:-1000,y:-1000};
+    let animationFrame;
+
+    const isTouch=window.matchMedia("(pointer: coarse)").matches;
+
+    function resize() {
+
+        width=window.innerWidth;
+        height=window.innerHeight;
+
+        const dpr=Math.min(window.devicePixelRatio||1,2);
+
+        canvas.width=width*dpr;
+        canvas.height=height*dpr;
+
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+
+        const count=reducedMotion?20:
+            Math.min(110,Math.floor(width*height/13000));
+
+        particles=Array.from({length:count},()=>({
+            x:Math.random()*width,
+            y:Math.random()*height,
+            vx:(Math.random()-.5)*.35,
+            vy:(Math.random()-.5)*.35,
+            radius:Math.random()*2+1,
+            phase:Math.random()*Math.PI*2
+        }));
+    }
+
+    window.addEventListener("resize",resize);
+
+    if(!isTouch) {
+
+        window.addEventListener("mousemove",event=>{
+
+            mouse.x=event.clientX;
+            mouse.y=event.clientY;
+
+            if(!reducedMotion) {
+                cursor.style.left=mouse.x+"px";
+                cursor.style.top=mouse.y+"px";
+            }
+
+        });
+
+        window.addEventListener("mouseleave",()=>{
+            mouse.x=-1000;
+            mouse.y=-1000;
+        });
+
+    } else {
+        cursor.style.display="none";
+    }
+
+
+    function animate() {
+
+        if(reducedMotion) {
+            ctx.clearRect(0,0,width,height);
+            particles.forEach(p=>{
+                ctx.beginPath();
+                ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+                ctx.fillStyle="rgba(255,120,65,.3)";
+                ctx.fill();
+            });
+            return;
+        }
+
+        ctx.clearRect(0,0,width,height);
+
+        const time=Date.now()*.001;
+
+        particles.forEach(p=>{
+
+            let dx=mouse.x-p.x;
+            let dy=mouse.y-p.y;
+
+            let distance=Math.sqrt(dx*dx+dy*dy);
+
+            if(distance<180 && distance>0) {
+
+                const force=(1-distance/180)*.08;
+
+                // As partículas se afastam suavemente do cursor.
+                p.vx-=dx/distance*force;
+                p.vy-=dy/distance*force;
+
+            }
+
+            p.x+=p.vx;
+            p.y+=p.vy;
+
+            p.vx*=.99;
+            p.vy*=.99;
+
+            p.x+=Math.sin(time+p.phase)*.12;
+            p.y+=Math.cos(time+p.phase)*.12;
+
+            if(p.x<0) p.x=width;
+            if(p.x>width) p.x=0;
+            if(p.y<0) p.y=height;
+            if(p.y>height) p.y=0;
+
+            const proximity=Math.max(0,1-distance/180);
+
+            const alpha=.2+proximity*.75;
+
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,p.radius+proximity*1.5,0,Math.PI*2);
+
+            ctx.fillStyle=`rgba(255,${100+proximity*90},${65+proximity*40},${alpha})`;
+            ctx.shadowBlur=proximity*18;
+            ctx.shadowColor="#ff743d";
+            ctx.fill();
+            ctx.shadowBlur=0;
+
+        });
+
+        // Ondas de calor distribuídas pelo fundo.
+        for(let i=0;i<4;i++) {
+
+            const x=width*(.15+i*.23);
+            const y=height*(.35+Math.sin(time*.4+i)*.2);
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                x,y,
+                60+Math.sin(time+i)*15,
+                9,
+                Math.sin(time*.2+i)*.3,
+                0,Math.PI*2
+            );
+
+            ctx.strokeStyle="rgba(255,90,55,.08)";
+            ctx.lineWidth=2;
+            ctx.stroke();
+        }
+
+        animationFrame=requestAnimationFrame(animate);
+
+    }
+
+    resize();
+    animate();
+
+    // Efeito parallax e brilho dos cards.
+    document.addEventListener("mousemove",event=>{
+
+        if(isTouch||reducedMotion) return;
+
+        const x=(event.clientX/window.innerWidth-.5);
+        const y=(event.clientY/window.innerHeight-.5);
+
+        const activeSlide=document.querySelector(".slide.active");
+
+        if(!activeSlide) return;
+
+        activeSlide.querySelectorAll(".image-frame").forEach(el=>{
+            el.style.transform=
+                `perspective(900px) rotateY(${x*4}deg) rotateX(${-y*4}deg)`;
+        });
+
+        activeSlide.querySelectorAll(".card").forEach(card=>{
+
+            const rect=card.getBoundingClientRect();
+
+            const localX=event.clientX-rect.left;
+            const localY=event.clientY-rect.top;
+
+            card.style.setProperty("--mx",localX+"px");
+            card.style.setProperty("--my",localY+"px");
+
+            if(rect.width>0 && rect.height>0) {
+                card.style.transform=
+                    `perspective(1000px) rotateY(${x*2}deg) rotateX(${-y*2}deg)`;
+            }
+
+        });
+
+    });
+
+    document.addEventListener("mouseleave",()=>{
+        document.querySelectorAll(".card,.image-frame").forEach(el=>{
+            el.style.transform="";
+        });
+    });
+
+})();
+
+
+/* =========================================================
+   NÃO PRECISA MEXER — 6. LIMPEZA E PROTEÇÃO
+========================================================= */
+
+// Atualiza o slide ao utilizar o histórico do navegador.
+window.addEventListener("hashchange",()=>{
+
+    const match=location.hash.match(/slide-(\d+)/);
+
+    if(!match) return;
+
+    const index=SLIDES.findIndex(s=>s.id===Number(match[1]));
+
+    if(index>=0 && index!==current) goToSlide(index);
+
+});
+
+// Garante a limpeza dos módulos ao sair da página.
+window.addEventListener("pagehide",()=>{
+    if(moduleCleanup) moduleCleanup();
+    clearInterval(timerInterval);
+});
+
+</script>
 </body>
 </html>
